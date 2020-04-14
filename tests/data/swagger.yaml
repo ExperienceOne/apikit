@@ -1,0 +1,1203 @@
+swagger: '2.0'
+info:
+  description: Vehicle Information Service Admin API
+  version: 1.0.0
+  title: vis-admin
+  contact:
+    name: Max Mustermann
+    email: max.musterman@fake.de
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /api/session:
+    get:
+      tags:
+      - SESSION
+      summary: Get user info
+      operationId: GetUserInfo
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+        maxLength: 255
+      - name: subID
+        in: header
+        type: integer
+        description: session
+        maximum: 255
+      responses:
+        '200':
+          description: Status 200
+          schema:
+            $ref: '#/definitions/User'
+        '400':
+          description: Malformed request body
+          schema:
+            $ref: '#/definitions/ValidationErrors'
+        '403':
+          description: Not authenticatedq
+    post:
+      tags:
+      - SESSION
+      summary: Create session
+      operationId: CreateSession
+      consumes: []
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required:
+          - id
+          - password
+          properties:
+            id:
+              type: string
+              minLength: 1
+            password:
+              type: string
+              minLength: 1
+      responses:
+        '200':
+          description: Authentication successful
+          headers:
+            X-Auth:
+              type: string
+              description: Authentication token
+        '400':
+          description: Malformed request body
+          schema:
+            $ref: '#/definitions/ValidationErrors'
+        '401':
+          description: Authentication not successful
+    delete:
+      summary: Destroy session
+      operationId: DestroySession
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+      responses:
+        '200':
+          description: Session destroyed
+        '404':
+          description: Session not found
+  /api/client:
+    get:
+      summary: List clients
+      operationId: GetClients
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+      responses:
+        '204':
+          description: Status 201
+        '200':
+          description: Status 200
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Client'
+        '403':
+          description: Not authenticated
+  '/api/client/{clientId}':
+    get:
+      summary: Get client
+      operationId: GetClient
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/Client'
+        '403':
+          description: Not authenticated
+        '404':
+          description: Not found
+    put:
+      summary: Create or update client
+      operationId: CreateOrUpdateClient
+      consumes: []
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Client'
+      responses:
+        '200':
+          description: Updated
+        '201':
+          description: Created
+        '400':
+          description: Malformed request body
+        '403':
+          description: Not authenticated
+        '405':
+          description: Not allowed
+    delete:
+      summary: Delete client
+      operationId: DeleteClient
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Not authenticated
+        '404':
+          description: Not found
+    parameters:
+    - name: clientId
+      in: path
+      required: true
+      type: string
+  '/api/client/{clientId}/views':
+    get:
+      summary: List views sets
+      operationId: GetViewsSets
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/views set'
+        '403':
+          description: Not authenticated
+    parameters:
+    - name: clientId
+      in: path
+      required: true
+      type: string
+  '/api/client/{clientId}/views/{viewsId}':
+    get:
+      summary: Get views set
+      operationId: GetViewsSet
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+      - name: page
+        in: query
+        required: true
+        type: string
+        description: Authentication token
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/views set'
+        '403':
+          description: Not authenticated
+        '404':
+          description: Not found
+    post:
+      summary: Activate views set
+      description: Make this viewset the active one for the client.
+      operationId: ActivateViewsSet
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Not authenticated
+        '404':
+          description: Not found
+    put:
+      summary: Create or update views set
+      operationId: CreateOrUpdateViewsSet
+      consumes: []
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/views set'
+      responses:
+        '200':
+          description: Updated
+        '201':
+          description: Created
+        '400':
+          description: Malformed request body
+        '403':
+          description: Not authenticated
+        '405':
+          description: Not allowed
+    delete:
+      summary: Delete views set
+      operationId: DeleteViewsSet
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Not authenticated
+        '404':
+          description: Not found
+    parameters:
+    - name: clientId
+      in: path
+      required: true
+      type: string
+    - name: viewsId
+      in: path
+      required: true
+      type: string
+  '/api/client/{clientId}/views/{viewsId}/{view}/{breakpoint}/{spec}':
+    get:
+      summary: Show vehicle in view
+      operationId: ShowVehicleInView
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Not authenticated
+        '404':
+          description: Not found
+    parameters:
+    - name: clientId
+      in: path
+      required: true
+      type: string
+    - name: viewsId
+      in: path
+      required: true
+      type: string
+    - name: view
+      in: path
+      required: true
+      type: string
+    - name: breakpoint
+      in: path
+      required: true
+      type: string
+    - name: spec
+      in: path
+      required: true
+      type: string
+  /api/user:
+    get:
+      summary: List users
+      operationId: GetUsers
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+        '403':
+          description: Not authenticated
+  '/api/user/{userId}':
+    get:
+      summary: Get user
+      operationId: GetUser
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/User'
+        '403':
+          description: Not authenticated
+        '404':
+          description: Not found
+    put:
+      summary: Create or update user
+      operationId: CreateOrUpdateUser
+      consumes: []
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/User'
+      responses:
+        '200':
+          description: Updated
+        '201':
+          description: Created
+        '400':
+          description: Malformed request body
+        '403':
+          description: Not authenticated
+        '405':
+          description: Not allowed
+    delete:
+      summary: Delete user
+      operationId: DeleteUser
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Not authenticated
+        '404':
+          description: Not found
+    parameters:
+    - name: userId
+      in: path
+      required: true
+      type: string
+    - name: allKeys
+      in: query
+      type: boolean
+  /api/permission:
+    get:
+      summary: List permissions
+      description: |-
+        Get the list of permissions
+        a user can grant to other users.
+      operationId: GetPermissions
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+      responses:
+        '200':
+          description: Status 200
+          schema:
+            type: array
+            items:
+              type: string
+        '403':
+          description: Not authenticated
+  /upload:
+    post:
+      summary: Upload a file with others data
+      consumes:
+      - multipart/form-data
+      operationId: PostUpload
+      parameters:
+      - in: formData
+        name: upfile
+        type: file
+        description: the file to upload
+      - in: formData
+        name: note
+        type: string
+        maxLength: 4000
+        pattern: "^[0-9a-zA-Z ]*$"
+        description: Description of file
+      responses:
+        '200':
+          description: Status 200
+        '500':
+          description: Status 500
+  '/download/{image}':
+    get:
+      produces:
+      - image/png
+      summary: Retrieve a image
+      description: Retrieve a image
+      operationId: DownloadImage
+      responses:
+        '200':
+          description: image to download
+          schema:
+            type: file
+          headers:
+            Content-Type:
+              type: "string"
+        '500':
+          description: Malfunction (internal requirements not fulfilled)
+      parameters:
+      - in: path
+        name: image
+        description: The image name of the image
+        type: string
+        required: true
+  '/filedownload/{file}':
+    get:
+      produces:
+      - text/xml
+      summary: Retrieve a file
+      description: Retrieve a file
+      operationId: DownloadFile
+      responses:
+        '200':
+          description: file to download
+          schema:
+            type: file
+          headers:
+            Content-Type:
+              type: "string"
+    parameters:
+    - in: path
+      name: file
+      description: The filename of the file
+      type: string
+      required: true
+  '/generic/download/{ext}':
+    get:
+      produces:
+      - application/json
+      summary: Retrieve a file
+      description: Retrieve a file
+      operationId: GenericFileDownload
+      responses:
+        '200':
+          description: file to download
+          schema:
+            type: file
+          headers:
+            Content-Type:
+              type: "string"
+            Pragma:
+              type: "string"
+        '500':
+          description: Malfunction (internal requirements not fulfilled)
+    parameters:
+    - in: path
+      name: ext
+      description: The ext of the file
+      type: string
+      required: true
+  /download/nested/file:
+    get:
+      summary: Downloads a nested file
+      description: >+
+        Downloads a file that is a property within a nested structure in the response body
+      operationId: DownloadNestedFile
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Nested file structure
+          schema:
+            $ref: '#/definitions/NestedFileStructure'
+  /bookings:
+    get:
+      summary: Get bookings
+      description: Get bookings of session owner
+      operationId: GetBookings
+      produces:
+      - application/json
+      parameters:
+      - name: date
+        in: header
+        type: string
+      - name: ids
+        in: query
+        type: array
+        items:
+          type: integer
+        required: false
+      responses:
+        '200':
+          description: Success List Booking History
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Booking'
+        '400':
+          description: status 400
+        '401':
+          description: Unauthorized Session Token
+        '404':
+          description: Resource Not Found
+        '500':
+          description: Malfunction (internal requirements not fulfilled)
+      security:
+      - X-Session-ID: []
+  /booking:
+    get:
+      summary: Get booking
+      description: Get booking of session owner
+      operationId: GetBooking
+      consumes:
+      - application/xml
+      responses:
+        '200':
+          description: status 200
+          schema:
+            type: string
+        '400':
+          description: status 400
+        '401':
+          description: Unauthorized Session Token
+        '404':
+          description: Resource Not Found
+        '500':
+          description: Malfunction (internal requirements not fulfilled)
+      security:
+      - X-Session-ID: []
+  '/rental':
+    get:
+      summary: Get rental
+      description: get rental
+      operationId: GetRental
+      consumes:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Rental'
+      responses:
+        '200':
+          description: status 200
+        '400':
+          description: status 400
+          schema:
+            $ref: '#/definitions/ValidationErrors'
+
+  '/brands/{brandId}/models':
+    parameters:
+    - name: brandId
+      in: path
+      required: true
+      type: string
+    get:
+      tags:
+      - MODEL
+      summary: Get all available models for the given brandId
+      operationId: ListModels
+      parameters:
+      - name: driveConcept
+        in: query
+        required: false
+        schema:
+          $ref: "#/definitions/DriveConcept"
+      - name: languageId
+        in: query
+        required: false
+        type: string
+        x-example: de
+      - name: classId
+        in: query
+        required: false
+        type: string
+        x-example: '123'
+      - name: lineId
+        in: query
+        required: false
+        type: string
+      - name: ids
+        in: query
+        type: array
+        items:
+          type: integer
+        required: false
+      responses:
+        '200':
+          description: Ok
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Model'
+          examples:
+            application/json: { "price": 38, "technical_information": null, "drive_concept":"drive_concept"}
+
+  '/classes/{productGroup}':
+    get:
+      operationId: GetClasses
+      summary: Get all available classes.
+      parameters:
+      - $ref: '#/parameters/componentType'
+      - $ref: '#/parameters/productGroup'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            type: string
+        '400':
+          description: Successful response
+          schema:
+            type: string
+  /elements:
+    get:
+      summary: "ListElements"
+      operationId: "ListElements"
+      parameters:
+      - name: "_page"
+        in: "query"
+        type: "integer"
+      - name: "_perPage"
+        in: "query"
+        type: "integer"
+      responses:
+        200:
+          description: "Status 200"
+          schema:
+            type: string
+
+          headers:
+            X-Total-Count:
+              type: "integer"
+        500:
+          description: "Status 500"
+  # application/x-www-form-urlencoded:
+  # the keys and values are encoded in key-value tuples separated by '&',
+  # with a '=' between the key and the value, the encoded string is in the request body
+  /code:
+    post:
+      summary: code to token
+      operationId: Code
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: state
+        in: formData
+        type: array
+        items:
+          type: integer
+        required: false
+      - name: response_mode
+        in: formData
+        type: string
+        required: false
+      - name: code
+        in: formData
+        type: string
+        required: true
+      - name: session
+        in: query
+        type: string
+        required: true
+      responses:
+        '200':
+          description: TBD
+          schema:
+            type: string
+        '400':
+          description: status 400
+        '401':
+          description: Unauthorized Session code
+        '404':
+          description: Resource Not Found
+        '500':
+          description: Malfunction (internal requirements not fulfilled)
+  '/customer/session':
+    post:
+      summary: Create session (login)
+      description: >+
+        Creates a customer session for a given OpenID authentication token.
+      operationId: CreateCustomerSession
+      consumes:
+        - 'application/x-www-form-urlencoded'
+      produces:
+        - application/json
+      parameters:
+        - name: code
+          description: OpenID authentication token
+          in: formData
+          type: string
+          required: true
+          maxLength: 255
+        - name: locale
+          description: default locale
+          in: formData
+          type: string
+          required: false
+          maxLength: 255
+          pattern: '^([a-z]{2})-([A-Z]{2})$'
+        - $ref: '#/parameters/X-Request-ID'
+      responses:
+        201:
+          description: Session successful created
+          schema:
+            $ref: '#/definitions/Session'
+        401:
+          description: Invalid OpenID authentication token
+        403:
+          description: >+
+            Create session with authentication token is forbidden (e.g. Token already used)
+        422:
+          description: Invalid request data
+          schema:
+            $ref: '#/definitions/ValidationErrors'
+        500:
+          description: Internal server error (e.g. unexpected condition occurred)
+    delete:
+      summary: Delete session (logout)
+      description: >+
+        Deletes the user session matching the *X-Auth* header.
+      operationId: DeleteCustomerSession
+      parameters:
+        - $ref: '#/parameters/X-Request-ID'
+      security:
+        - X-Session-ID: []
+      responses:
+        204:
+          description: Session successful deleted
+        401:
+          description: Invalid session token
+        500:
+          description: Internal server error (e.g. unexpected condition occurred)
+  /shop/shoes:
+    get:
+      summary: Get all shoes
+      operationId: GetShoes
+      produces:
+        - application/hal+json
+      responses:
+        200:
+          description: Successful
+          schema:
+            $ref: '#/definitions/Shoes'
+securityDefinitions:
+  X-Session-ID:
+    type: apiKey
+    name: X-Session-ID
+    in: header
+definitions:
+  Client:
+    type: object
+    required:
+    - id
+    - name
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      activePresets:
+        type: string
+      configuration:
+        type: object
+        properties:
+          bbdCallerIdentifier:
+            type: string
+          bbdUser:
+            type: string
+          bbdPassword:
+            type: string
+          bbdSoapMediaProviderUrl:
+            type: string
+          bbdCEBaseUrl:
+            type: string
+          bbdDataSupply:
+            type: string
+          bbdProductGroup:
+            type: string
+          bbdImageType:
+            type: string
+          bbdImagePerspective:
+            type: string
+          bbdImageBackground:
+            type: string
+          ccoreServiceUrl:
+            type: string
+          healConfigurations:
+            type: boolean
+          cryptKeys:
+            type: array
+            items:
+              type: string
+  views set:
+    type: object
+    required:
+    - id
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      views:
+        type: string
+        description: View definitions in YAML format
+  Booking:
+    type: object
+    required:
+    - id
+    properties:
+      bookingID:
+        type: string
+  User:
+    type: object
+    required:
+    - id
+    - password
+    properties:
+      id:
+        type: string
+      email:
+        type: string
+        format: email
+        maxLength: 255
+      password:
+        type: string
+      permissions:
+        type: array
+        items:
+          type: string
+      grantedProtocolMappers:
+        type: object
+        additionalProperties:
+          type: string
+      Address:
+        type: array
+        items:
+          $ref: '#/definitions/Address'
+  Address:
+    type: "object"
+    required:
+    - "city"
+    - "country"
+    - "houseNumber"
+    - "postalCode"
+    - "region"
+    - "street"
+    properties:
+      street:
+        type: "string"
+        description: "Street name"
+      houseNumber:
+        type: "string"
+        description: "House number"
+      city:
+        type: "string"
+        description: "City"
+      postalCode:
+        type: "string"
+        description: "Postal code"
+      region:
+        type: "string"
+        description: "Region"
+      country:
+        type: "string"
+        description: "Country (ISO 3166)"
+  ValidationErrors:
+    type: object
+    properties:
+      Message:
+        type: string
+      Errors:
+        type: array
+        items:
+          $ref: '#/definitions/ValidationError'
+  ValidationError:
+    type: object
+    properties:
+      Message:
+        type: string
+      Field:
+        type: string
+      Code:
+        type: string
+  Model:
+    type: object
+    required:
+    - technicalInformation
+    - price
+    properties:
+      price:
+        $ref: '#/definitions/Price'
+      technicalInformation:
+        $ref: '#/definitions/TechnicalInformation'
+      driveConcept:
+        $ref: '#/definitions/DriveConcept'
+  Rental:
+    type: object
+    required:
+    - class
+    - lockStatus
+    - status
+    - stationID
+    - maxDoors
+    - minDoors
+    - website
+    - id
+    properties:
+      state:
+        type: integer
+        format: int64
+      class:
+        type: string
+        minLength: 3
+        maxLength: 20
+      status:
+        type: integer
+        minimum: 45
+        exclusiveMinimum: true
+        maximum: 50
+        exclusiveMaximum: true
+      lockStatus:
+        type: integer
+        minimum: 0
+        exclusiveMinimum: true
+        maximum: 100
+        exclusiveMaximum: false
+        format: int32
+      minDoors:
+        type: integer
+        minimum: 5
+        format: int64
+      maxDoors:
+        type: integer
+        maximum: 5
+      stationID:
+        type: string
+        pattern: '^[a-zA-Z]$'
+      homeID:
+        type: string
+        pattern: '^[a-zA-Z]$'
+      color:
+        type: string
+        minLength: 3
+        maxLength: 20
+      valid:
+        type: string
+        maxLength: 255
+      optionalInt:
+        type: integer
+      id:
+        type: string
+        format: uuid
+      idOptional:
+        type: string
+        format: uuid
+      website:
+        type: string
+        format: url
+      websiteOptional:
+        type: string
+        format: url
+        maxLength: 255
+  EmptySlice:
+    properties:
+      EmptySlice:
+        type: "array"
+        items:
+          $ref: '#/definitions/Price'
+  Price:
+    type: object
+    required:
+    - currency
+    - value
+    properties:
+      currency:
+        type: string
+        example: RMB
+      value:
+        type: number
+        example: 123456.78
+  TechnicalInformation:
+    type: object
+    required:
+    - transmission
+    properties:
+      transmission:
+        type: string
+        example: 7G-DCT
+  DriveConcept:
+    description: The kind of drive concept of a vehicle. Where UNDEFINED is used as the default and/or error case.
+    type: string
+    enum:
+    - COMBUSTOR
+    - HYBRID
+    - ELECTRIC
+    - FUELCELL
+    - UNDEFINED
+  NestedFileStructure:
+    properties:
+      data:
+        type: string
+  Session:
+    type: object
+    required:
+      - Token
+      - Registered
+    properties:
+      Token:
+        type: string
+        description: Token used within the X-Session-ID header
+      Registered:
+        type: boolean
+        description: Indicates if the user is registered at the rental system
+  BasicTypes:
+    type: object
+    required:
+      - string
+      - integer
+      - boolean
+      - number
+      - slice
+      - map
+    properties:
+      string:
+        type: string
+      integer:
+        type: integer
+      number:
+        type: number
+      boolean:
+        type: boolean
+      slice:
+        type: array
+        items:
+          type: string
+      map:
+        type: object
+        additionalProperties:
+          type: string
+  Shoes:
+    type: object
+    required:
+      - id
+      - _embedded
+      - _links
+    properties:
+      id:
+        type: string
+      _embedded:
+        $ref: '#/definitions/ShoesEmbedded'
+      _links:
+        $ref: '#/definitions/Links'
+  ShoesEmbedded:
+    type: object
+    required:
+      - shop:shoes
+    properties:
+      shop:shoes:
+        type: array
+        items:
+          $ref: '#/definitions/Shoe'
+  Shoe:
+    type: object
+    required:
+      - name
+      - size
+      - color
+      - _links
+    properties:
+      name:
+        type: string
+      size:
+        type: number
+      color:
+        type: string
+      _links:
+        $ref: '#/definitions/Links'
+  Links:
+    type: object
+    required:
+      - self
+    properties:
+      self:
+        $ref: '#/definitions/Link'
+  Link:
+    type: object
+    required:
+      - href
+    properties:
+      href:
+        type: string
+parameters:
+  X-Request-ID:
+    name: 'X-Request-ID'
+    in: header
+    type: string
+    required: false
+    description: ID of the request in UUIDv4 format
+  componentType:
+    name: componentTypes
+    description: A list of component types separated by a comma case insensitive. If nothing is defined all component types are returned.
+    in: query
+    items:
+      type: string
+    enum:
+    - WHEELS
+    - PAINTS
+    - UPHOLSTERIES
+    - TRIMS
+    - PACKAGES
+    - LINES
+    - SPECIAL_EDITION
+    - SPECIAL_EQUIPMENT
+    type: array
+    required: false
+  productGroup:
+    name: productGroup
+    description: The productGroup of a vehicle case insensitive.
+    in: path
+    type: string
+    default: PKW
+    enum:
+    - PKW
+    - GELAENDEWAGEN
+    - VAN
+    - SPRINTER
+    - CITAN
+    - SMART
+    required: true

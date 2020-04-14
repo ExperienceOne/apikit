@@ -1,0 +1,71 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Customer Sub-API
+  description: Customer operations, definitions, parameters and responses
+
+securityDefinitions:
+#  $ref: 'commons.yaml#/securityDefinitions'
+  X-Session-ID:
+    type: apiKey
+    name: 'X-Session-ID'
+    in: header
+
+paths:
+  '/customer/session':
+    post:
+      summary: Create session (login)
+      description: >+
+        Creates a customer session for a given OpenID authentication token.
+      operationId: CreateCustomerSession
+      consumes:
+        - 'application/x-www-form-urlencoded'
+      produces:
+        - application/json
+      parameters:
+        - name: code
+          description: OpenID authentication token
+          in: formData
+          type: string
+          required: true
+          maxLength: 255
+        - name: locale
+          description: default locale
+          in: formData
+          type: string
+          required: false
+          maxLength: 255
+          pattern: '^([a-z]{2})-([A-Z]{2})$'
+        - $ref: 'commons.yaml#/parameters/X-Request-ID'
+      responses:
+        201:
+          description: Session successful created
+          schema:
+            $ref: 'commons.yaml#/definitions/Session'
+        401:
+          description: Invalid OpenID authentication token
+        403:
+          description: >+
+            Create session with authentication token is forbidden (e.g. Token already used)
+        422:
+          description: Invalid request data
+          schema:
+            $ref: 'commons.yaml#/definitions/ValidationErrors'
+        500:
+          description: Internal server error (e.g. unexpected condition occurred)
+    delete:
+      summary: Delete session (logout)
+      description: >+
+        Deletes the user session matching the *X-Auth* header.
+      operationId: DeleteCustomerSession
+      parameters:
+        - $ref: 'commons.yaml#/parameters/X-Request-ID'
+      security:
+        - X-Session-ID: []
+      responses:
+        204:
+          description: Session successful deleted
+        401:
+          description: Invalid session token
+        500:
+          description: Internal server error (e.g. unexpected condition occurred)

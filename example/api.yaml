@@ -1,0 +1,54 @@
+swagger: "2.0"
+info:
+  title: Basket Service
+  version: 1.0.0
+host: "localhost:9001"
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /item:
+    post:
+      operationId: PostItem
+      parameters:
+        - $ref: "#/parameters/ItemParameter"
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal server error (e.g. unexpected condition occurred)
+  /items:
+    get:
+      operationId: GetItems
+      responses:
+        "200":
+          description: Items posted
+          schema:
+            $ref: "#/definitions/Items"
+parameters:
+  ItemParameter:
+    name: item
+    in: body
+    schema:
+      $ref: "#/definitions/Item"
+definitions:
+  Item:
+    type: object
+    required:
+      - id
+      - name
+      - price
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+  Items:
+    type: array
+    items:
+      $ref: "#/definitions/Item"

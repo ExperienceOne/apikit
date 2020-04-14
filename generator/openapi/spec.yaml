@@ -1,0 +1,63 @@
+swagger: '2.0'
+info:
+  description: Vehicle Information Service Admin API
+  version: 1.0.0
+  title: vis-admin
+  contact:
+    name: Marcel Edmund Franke
+    email: marcel.franke@nolteundlauth.de
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /api/session:
+    get:
+      tags:
+      - SESSION
+      summary: Get user info
+      operationId: GetUserInfo
+      parameters:
+      - name: X-Auth
+        in: header
+        required: true
+        type: string
+        description: Authentication token
+        maxLength: 255
+      - name: subID
+        in: header
+        type: integer
+        description: session
+        maximum: 255
+      responses:
+        '200':
+          description: Status 200
+          schema:
+            $ref: '#/definitions/User'
+        '403':
+          description: Not authenticated
+  /customer/session:
+    $ref: 'customer.yaml#/paths/~1customer~1session'
+definitions:
+  User:
+    type: object
+    required:
+    - id
+    - password
+    properties:
+      id:
+        type: string
+      email:
+        type: string
+        format: email
+        maxLength: 255
+      password:
+        type: string
+      permissions:
+        type: array
+        items:
+          type: string
+      grantedProtocolMappers:
+        type: object
+        additionalProperties:
+          type: string

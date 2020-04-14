@@ -1,0 +1,61 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Common elements
+  description: Shared elements over all API endpoints
+
+# Required to prevent OpenAPI v2 specification validation errors
+paths: {}
+
+securityDefinitions:
+  X-Session-ID:
+    type: apiKey
+    name: 'X-Session-ID'
+    in: header
+
+parameters:
+  X-Request-ID:
+    name: 'X-Request-ID'
+    in: header
+    type: string
+    required: false
+    description: ID of the request in UUIDv4 format
+
+definitions:
+  Session:
+    type: object
+    required:
+      - Token
+      - Registered
+    properties:
+      Token:
+        type: string
+        description: Token used within the X-Session-ID header
+      Registered:
+        type: boolean
+        description: Indicates if the user is registered at the rental system
+  Error:
+    type: object
+    required:
+      - Code
+      - Message
+    properties:
+      Code:
+        type: integer
+      Message:
+        type: string
+  ValidationError:
+    type: object
+    required:
+      - Error
+      - Field
+    properties:
+      Error:
+        $ref: '#/definitions/Error'
+      Field:
+        type: string
+        description: Invalid attribute that caused the validation error
+  ValidationErrors:
+    type: array
+    items:
+      $ref: '#/definitions/ValidationError'

@@ -1,0 +1,2520 @@
+package api
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"io"
+	"mime/multipart"
+	"net/http"
+	"net/url"
+	"regexp"
+	"strings"
+)
+
+type visAdminClient struct {
+	baseURL    string
+	hooks      HooksClient
+	ctx        context.Context
+	httpClient *httpClientWrapper
+	xmlMatcher *regexp.Regexp
+}
+
+func (client *visAdminClient) GetClients(request *GetClientsRequest) (GetClientsResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/client"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(GetClients200Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetClients200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 204 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetClients204Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetClients403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) DeleteClient(request *DeleteClientRequest) (DeleteClientResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/client/{clientId}"
+	method := "DELETE"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	endpoint = strings.Replace(endpoint, "{clientId}", url.QueryEscape(toString(request.ClientId)), 1)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(DeleteClient200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(DeleteClient403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 404 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(DeleteClient404Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) GetClient(request *GetClientRequest) (GetClientResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/client/{clientId}"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	endpoint = strings.Replace(endpoint, "{clientId}", url.QueryEscape(toString(request.ClientId)), 1)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(GetClient200Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetClient200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetClient403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 404 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetClient404Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) CreateOrUpdateClient(request *CreateOrUpdateClientRequest) (CreateOrUpdateClientResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/client/{clientId}"
+	method := "PUT"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	endpoint = strings.Replace(endpoint, "{clientId}", url.QueryEscape(toString(request.ClientId)), 1)
+	jsonData := new(bytes.Buffer)
+	encodeErr := json.NewEncoder(jsonData).Encode(&request.Body)
+	if encodeErr != nil {
+		return nil, encodeErr
+	}
+	httpRequest, reqErr := http.NewRequest(method, endpoint, jsonData)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header[contentTypeHeader] = []string{contentTypeApplicationJson}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateOrUpdateClient200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 201 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateOrUpdateClient201Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 400 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateOrUpdateClient400Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateOrUpdateClient403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 405 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateOrUpdateClient405Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) GetViewsSets(request *GetViewsSetsRequest) (GetViewsSetsResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/client/{clientId}/views"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	endpoint = strings.Replace(endpoint, "{clientId}", url.QueryEscape(toString(request.ClientId)), 1)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(GetViewsSets200Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetViewsSets200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetViewsSets403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) DeleteViewsSet(request *DeleteViewsSetRequest) (DeleteViewsSetResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/client/{clientId}/views/{viewsId}"
+	method := "DELETE"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	endpoint = strings.Replace(endpoint, "{clientId}", url.QueryEscape(toString(request.ClientId)), 1)
+	endpoint = strings.Replace(endpoint, "{viewsId}", url.QueryEscape(toString(request.ViewsId)), 1)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(DeleteViewsSet200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(DeleteViewsSet403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 404 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(DeleteViewsSet404Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) GetViewsSet(request *GetViewsSetRequest) (GetViewsSetResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/client/{clientId}/views/{viewsId}"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	endpoint = strings.Replace(endpoint, "{clientId}", url.QueryEscape(toString(request.ClientId)), 1)
+	endpoint = strings.Replace(endpoint, "{viewsId}", url.QueryEscape(toString(request.ViewsId)), 1)
+	query := make(url.Values)
+	query.Add("page", toString(request.Page))
+	encodedQuery := query.Encode()
+	if encodedQuery != "" {
+		endpoint += "?" + encodedQuery
+	}
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(GetViewsSet200Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetViewsSet200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetViewsSet403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 404 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetViewsSet404Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+// Make this viewset the active one for the client.
+func (client *visAdminClient) ActivateViewsSet(request *ActivateViewsSetRequest) (ActivateViewsSetResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/client/{clientId}/views/{viewsId}"
+	method := "POST"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	endpoint = strings.Replace(endpoint, "{clientId}", url.QueryEscape(toString(request.ClientId)), 1)
+	endpoint = strings.Replace(endpoint, "{viewsId}", url.QueryEscape(toString(request.ViewsId)), 1)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(ActivateViewsSet200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(ActivateViewsSet403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 404 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(ActivateViewsSet404Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) CreateOrUpdateViewsSet(request *CreateOrUpdateViewsSetRequest) (CreateOrUpdateViewsSetResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/client/{clientId}/views/{viewsId}"
+	method := "PUT"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	endpoint = strings.Replace(endpoint, "{clientId}", url.QueryEscape(toString(request.ClientId)), 1)
+	endpoint = strings.Replace(endpoint, "{viewsId}", url.QueryEscape(toString(request.ViewsId)), 1)
+	jsonData := new(bytes.Buffer)
+	encodeErr := json.NewEncoder(jsonData).Encode(&request.Body)
+	if encodeErr != nil {
+		return nil, encodeErr
+	}
+	httpRequest, reqErr := http.NewRequest(method, endpoint, jsonData)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header[contentTypeHeader] = []string{contentTypeApplicationJson}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateOrUpdateViewsSet200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 201 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateOrUpdateViewsSet201Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 400 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateOrUpdateViewsSet400Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateOrUpdateViewsSet403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 405 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateOrUpdateViewsSet405Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) ShowVehicleInView(request *ShowVehicleInViewRequest) (ShowVehicleInViewResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/client/{clientId}/views/{viewsId}/{view}/{breakpoint}/{spec}"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	endpoint = strings.Replace(endpoint, "{clientId}", url.QueryEscape(toString(request.ClientId)), 1)
+	endpoint = strings.Replace(endpoint, "{viewsId}", url.QueryEscape(toString(request.ViewsId)), 1)
+	endpoint = strings.Replace(endpoint, "{view}", url.QueryEscape(toString(request.View)), 1)
+	endpoint = strings.Replace(endpoint, "{breakpoint}", url.QueryEscape(toString(request.Breakpoint)), 1)
+	endpoint = strings.Replace(endpoint, "{spec}", url.QueryEscape(toString(request.Spec)), 1)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(ShowVehicleInView200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(ShowVehicleInView403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 404 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(ShowVehicleInView404Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+/*
+Get the list of permissions
+a user can grant to other users.
+*/
+func (client *visAdminClient) GetPermissions(request *GetPermissionsRequest) (GetPermissionsResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/permission"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(GetPermissions200Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetPermissions200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetPermissions403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) DestroySession(request *DestroySessionRequest) (DestroySessionResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/session"
+	method := "DELETE"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(DestroySession200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 404 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(DestroySession404Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) GetUserInfo(request *GetUserInfoRequest) (GetUserInfoResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/session"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	if request.SubID != nil {
+		httpRequest.Header["subID"] = []string{toString(request.SubID)}
+	}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(GetUserInfo200Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetUserInfo200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 400 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(GetUserInfo400Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetUserInfo400Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetUserInfo403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) CreateSession(request *CreateSessionRequest) (CreateSessionResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/session"
+	method := "POST"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	jsonData := new(bytes.Buffer)
+	encodeErr := json.NewEncoder(jsonData).Encode(&request.Body)
+	if encodeErr != nil {
+		return nil, encodeErr
+	}
+	httpRequest, reqErr := http.NewRequest(method, endpoint, jsonData)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header[contentTypeHeader] = []string{contentTypeApplicationJson}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateSession200Response)
+			if err := fromString(httpResponse.Header.Get("X-Auth"), &response.XAuth); err != nil {
+				return nil, err
+			}
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 400 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(CreateSession400Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateSession400Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 401 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateSession401Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) GetUsers(request *GetUsersRequest) (GetUsersResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/user"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(GetUsers200Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetUsers200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetUsers403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) DeleteUser(request *DeleteUserRequest) (DeleteUserResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/user/{userId}"
+	method := "DELETE"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	endpoint = strings.Replace(endpoint, "{userId}", url.QueryEscape(toString(request.UserId)), 1)
+	query := make(url.Values)
+	if request.AllKeys != nil {
+		query.Add("allKeys", toString(request.AllKeys))
+	}
+	encodedQuery := query.Encode()
+	if encodedQuery != "" {
+		endpoint += "?" + encodedQuery
+	}
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(DeleteUser200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(DeleteUser403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 404 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(DeleteUser404Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) GetUser(request *GetUserRequest) (GetUserResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/user/{userId}"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	endpoint = strings.Replace(endpoint, "{userId}", url.QueryEscape(toString(request.UserId)), 1)
+	query := make(url.Values)
+	if request.AllKeys != nil {
+		query.Add("allKeys", toString(request.AllKeys))
+	}
+	encodedQuery := query.Encode()
+	if encodedQuery != "" {
+		endpoint += "?" + encodedQuery
+	}
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(GetUser200Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetUser200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetUser403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 404 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetUser404Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) CreateOrUpdateUser(request *CreateOrUpdateUserRequest) (CreateOrUpdateUserResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/api/user/{userId}"
+	method := "PUT"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	endpoint = strings.Replace(endpoint, "{userId}", url.QueryEscape(toString(request.UserId)), 1)
+	query := make(url.Values)
+	if request.AllKeys != nil {
+		query.Add("allKeys", toString(request.AllKeys))
+	}
+	encodedQuery := query.Encode()
+	if encodedQuery != "" {
+		endpoint += "?" + encodedQuery
+	}
+	jsonData := new(bytes.Buffer)
+	encodeErr := json.NewEncoder(jsonData).Encode(&request.Body)
+	if encodeErr != nil {
+		return nil, encodeErr
+	}
+	httpRequest, reqErr := http.NewRequest(method, endpoint, jsonData)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header[contentTypeHeader] = []string{contentTypeApplicationJson}
+	httpRequest.Header["X-Auth"] = []string{toString(request.XAuth)}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateOrUpdateUser200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 201 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateOrUpdateUser201Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 400 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateOrUpdateUser400Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateOrUpdateUser403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 405 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateOrUpdateUser405Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+// Get booking of session owner
+func (client *visAdminClient) GetBooking(request *GetBookingRequest) (GetBookingResponse, error) {
+	return nil, newNotSupportedContentType(415, "no supported content type")
+}
+
+// Get bookings of session owner
+func (client *visAdminClient) GetBookings(request *GetBookingsRequest) (GetBookingsResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/bookings"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	query := make(url.Values)
+	if request.Ids != nil {
+		query.Add("ids", toString(request.Ids))
+	}
+	encodedQuery := query.Encode()
+	if encodedQuery != "" {
+		endpoint += "?" + encodedQuery
+	}
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header["X-Session-ID"] = []string{request.XSessionID}
+	if request.Date != nil {
+		httpRequest.Header["date"] = []string{toString(request.Date)}
+	}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(GetBookings200Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetBookings200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 400 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetBookings400Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 401 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetBookings401Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 404 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetBookings404Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 500 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetBookings500Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) ListModels(request *ListModelsRequest) (ListModelsResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/brands/{brandId}/models"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	endpoint = strings.Replace(endpoint, "{brandId}", url.QueryEscape(toString(request.BrandId)), 1)
+	query := make(url.Values)
+	if request.DriveConcept != nil {
+		query.Add("driveConcept", toString(request.DriveConcept))
+	}
+	if request.LanguageId != nil {
+		query.Add("languageId", toString(request.LanguageId))
+	}
+	if request.ClassId != nil {
+		query.Add("classId", toString(request.ClassId))
+	}
+	if request.LineId != nil {
+		query.Add("lineId", toString(request.LineId))
+	}
+	if request.Ids != nil {
+		query.Add("ids", toString(request.Ids))
+	}
+	encodedQuery := query.Encode()
+	if encodedQuery != "" {
+		endpoint += "?" + encodedQuery
+	}
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(ListModels200Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(ListModels200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) GetClasses(request *GetClassesRequest) (GetClassesResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/classes/{productGroup}"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	endpoint = strings.Replace(endpoint, "{productGroup}", url.QueryEscape(toString(request.ProductGroup)), 1)
+	query := make(url.Values)
+	if request.ComponentTypes != nil {
+		query.Add("componentTypes", toString(request.ComponentTypes))
+	}
+	encodedQuery := query.Encode()
+	if encodedQuery != "" {
+		endpoint += "?" + encodedQuery
+	}
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(GetClasses200Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetClasses200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 400 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(GetClasses400Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetClasses400Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) Code(request *CodeRequest) (CodeResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/code"
+	method := "POST"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	query := make(url.Values)
+	query.Add("session", toString(request.Session))
+	encodedQuery := query.Encode()
+	if encodedQuery != "" {
+		endpoint += "?" + encodedQuery
+	}
+	queryInBody := make(url.Values)
+	if request.State != nil {
+		queryInBody.Add("state", toString(request.State))
+	}
+	if request.ResponseMode != nil {
+		queryInBody.Add("response_mode", toString(request.ResponseMode))
+	}
+	queryInBody.Add("code", toString(request.Code))
+	encodedQueryInBody := queryInBody.Encode()
+	formData := bytes.NewBufferString(encodedQueryInBody)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, formData)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header[contentTypeHeader] = []string{contentTypeApplicationFormUrlencoded}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(Code200Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(Code200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 400 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(Code400Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 401 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(Code401Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 404 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(Code404Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 500 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(Code500Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+/*
+Deletes the user session matching the *X-Auth* header.
+*/
+func (client *visAdminClient) DeleteCustomerSession(request *DeleteCustomerSessionRequest) (DeleteCustomerSessionResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/customer/session"
+	method := "DELETE"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header["X-Session-ID"] = []string{request.XSessionID}
+	if request.XRequestID != nil {
+		httpRequest.Header["X-Request-ID"] = []string{toString(request.XRequestID)}
+	}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 204 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(DeleteCustomerSession204Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 401 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(DeleteCustomerSession401Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 500 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(DeleteCustomerSession500Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+/*
+Creates a customer session for a given OpenID authentication token.
+*/
+func (client *visAdminClient) CreateCustomerSession(request *CreateCustomerSessionRequest) (CreateCustomerSessionResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/customer/session"
+	method := "POST"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	queryInBody := make(url.Values)
+	queryInBody.Add("code", toString(request.Code))
+	if request.Locale != nil {
+		queryInBody.Add("locale", toString(request.Locale))
+	}
+	encodedQueryInBody := queryInBody.Encode()
+	formData := bytes.NewBufferString(encodedQueryInBody)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, formData)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header[contentTypeHeader] = []string{contentTypeApplicationFormUrlencoded}
+	if request.XRequestID != nil {
+		httpRequest.Header["X-Request-ID"] = []string{toString(request.XRequestID)}
+	}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 201 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(CreateCustomerSession201Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateCustomerSession201Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 401 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateCustomerSession401Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 403 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateCustomerSession403Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 422 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(CreateCustomerSession422Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateCustomerSession422Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 500 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(CreateCustomerSession500Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+/*
+Downloads a file that is a property within a nested structure in the response body
+*/
+func (client *visAdminClient) DownloadNestedFile(request *DownloadNestedFileRequest) (DownloadNestedFileResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/download/nested/file"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(DownloadNestedFile200Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(DownloadNestedFile200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+// Retrieve a image
+func (client *visAdminClient) DownloadImage(request *DownloadImageRequest) (DownloadImageResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/download/{image}"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	endpoint = strings.Replace(endpoint, "{image}", url.QueryEscape(toString(request.Image)), 1)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"image/png"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeInList(contentTypesForFiles, contentTypeOfResponse) {
+			response := new(DownloadImage200Response)
+			if err := fromString(httpResponse.Header.Get("Content-Type"), &response.ContentType); err != nil {
+				return nil, err
+			}
+			response.Body = httpResponse.Body
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 500 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(DownloadImage500Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) ListElements(request *ListElementsRequest) (ListElementsResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/elements"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	query := make(url.Values)
+	if request.Page != nil {
+		query.Add("_page", toString(request.Page))
+	}
+	if request.PerPage != nil {
+		query.Add("_perPage", toString(request.PerPage))
+	}
+	encodedQuery := query.Encode()
+	if encodedQuery != "" {
+		endpoint += "?" + encodedQuery
+	}
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(ListElements200Response)
+			if err := fromString(httpResponse.Header.Get("X-Total-Count"), &response.XTotalCount); err != nil {
+				return nil, err
+			}
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(ListElements200Response)
+			if err := fromString(httpResponse.Header.Get("X-Total-Count"), &response.XTotalCount); err != nil {
+				return nil, err
+			}
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 500 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(ListElements500Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+// Retrieve a file
+func (client *visAdminClient) DownloadFile(request *DownloadFileRequest) (DownloadFileResponse, error) {
+	return nil, newNotSupportedContentType(415, "no supported content type")
+}
+
+// Retrieve a file
+func (client *visAdminClient) GenericFileDownload(request *GenericFileDownloadRequest) (GenericFileDownloadResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/generic/download/{ext}"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	endpoint = strings.Replace(endpoint, "{ext}", url.QueryEscape(toString(request.Ext)), 1)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeInList(contentTypesForFiles, contentTypeOfResponse) {
+			response := new(GenericFileDownload200Response)
+			if err := fromString(httpResponse.Header.Get("Content-Type"), &response.ContentType); err != nil {
+				return nil, err
+			}
+			if err := fromString(httpResponse.Header.Get("Pragma"), &response.Pragma); err != nil {
+				return nil, err
+			}
+			response.Body = httpResponse.Body
+			return response, nil
+		}
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(GenericFileDownload200Response)
+			if err := fromString(httpResponse.Header.Get("Content-Type"), &response.ContentType); err != nil {
+				return nil, err
+			}
+			if err := fromString(httpResponse.Header.Get("Pragma"), &response.Pragma); err != nil {
+				return nil, err
+			}
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GenericFileDownload200Response)
+			if err := fromString(httpResponse.Header.Get("Content-Type"), &response.ContentType); err != nil {
+				return nil, err
+			}
+			if err := fromString(httpResponse.Header.Get("Pragma"), &response.Pragma); err != nil {
+				return nil, err
+			}
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 500 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GenericFileDownload500Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+// get rental
+func (client *visAdminClient) GetRental(request *GetRentalRequest) (GetRentalResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/rental"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	jsonData := new(bytes.Buffer)
+	encodeErr := json.NewEncoder(jsonData).Encode(&request.Body)
+	if encodeErr != nil {
+		return nil, encodeErr
+	}
+	httpRequest, reqErr := http.NewRequest(method, endpoint, jsonData)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header[contentTypeHeader] = []string{contentTypeApplicationJson}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetRental200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 400 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(GetRental400Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetRental400Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) GetShoes(request *GetShoesRequest) (GetShoesResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/shop/shoes"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/hal+json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(GetShoes200Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			httpResponse.Body.Close()
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(GetShoes200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+func (client *visAdminClient) PostUpload(request *PostUploadRequest) (PostUploadResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/upload"
+	method := "POST"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	formData := new(bytes.Buffer)
+	bodyWriter := multipart.NewWriter(formData)
+	if request.FormData.Upfile != nil {
+		fileWriter0, writerErr0 := bodyWriter.CreateFormFile("upfile", "upfile")
+		if writerErr0 != nil {
+			bodyWriter.Close()
+			return nil, writerErr0
+		}
+		_, copyFileErr0 := io.Copy(fileWriter0, request.FormData.Upfile.Content)
+		if copyFileErr0 != nil {
+			bodyWriter.Close()
+			return nil, copyFileErr0
+		}
+	}
+	if request.FormData.Note != nil {
+		fieldData0 := toString(request.FormData.Note)
+		fieldWriter0, fieldErr0 := bodyWriter.CreateFormField("note")
+		if fieldErr0 != nil {
+			bodyWriter.Close()
+			return nil, fieldErr0
+		}
+		_, writeFieldErr0 := fieldWriter0.Write([]byte(fieldData0))
+		if writeFieldErr0 != nil {
+			bodyWriter.Close()
+			return nil, writeFieldErr0
+		}
+	}
+	contentType := bodyWriter.FormDataContentType()
+	bodyWriter.Close()
+	httpRequest, reqErr := http.NewRequest(method, endpoint, formData)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header[contentTypeHeader] = []string{contentType}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 200 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(PostUpload200Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 500 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(PostUpload500Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
+type VisAdminClient interface {
+	GetClients(request *GetClientsRequest) (GetClientsResponse, error)
+	DeleteClient(request *DeleteClientRequest) (DeleteClientResponse, error)
+	GetClient(request *GetClientRequest) (GetClientResponse, error)
+	CreateOrUpdateClient(request *CreateOrUpdateClientRequest) (CreateOrUpdateClientResponse, error)
+	GetViewsSets(request *GetViewsSetsRequest) (GetViewsSetsResponse, error)
+	DeleteViewsSet(request *DeleteViewsSetRequest) (DeleteViewsSetResponse, error)
+	GetViewsSet(request *GetViewsSetRequest) (GetViewsSetResponse, error)
+	ActivateViewsSet(request *ActivateViewsSetRequest) (ActivateViewsSetResponse, error)
+	CreateOrUpdateViewsSet(request *CreateOrUpdateViewsSetRequest) (CreateOrUpdateViewsSetResponse, error)
+	ShowVehicleInView(request *ShowVehicleInViewRequest) (ShowVehicleInViewResponse, error)
+	GetPermissions(request *GetPermissionsRequest) (GetPermissionsResponse, error)
+	DestroySession(request *DestroySessionRequest) (DestroySessionResponse, error)
+	GetUserInfo(request *GetUserInfoRequest) (GetUserInfoResponse, error)
+	CreateSession(request *CreateSessionRequest) (CreateSessionResponse, error)
+	GetUsers(request *GetUsersRequest) (GetUsersResponse, error)
+	DeleteUser(request *DeleteUserRequest) (DeleteUserResponse, error)
+	GetUser(request *GetUserRequest) (GetUserResponse, error)
+	CreateOrUpdateUser(request *CreateOrUpdateUserRequest) (CreateOrUpdateUserResponse, error)
+	GetBooking(request *GetBookingRequest) (GetBookingResponse, error)
+	GetBookings(request *GetBookingsRequest) (GetBookingsResponse, error)
+	ListModels(request *ListModelsRequest) (ListModelsResponse, error)
+	GetClasses(request *GetClassesRequest) (GetClassesResponse, error)
+	Code(request *CodeRequest) (CodeResponse, error)
+	DeleteCustomerSession(request *DeleteCustomerSessionRequest) (DeleteCustomerSessionResponse, error)
+	CreateCustomerSession(request *CreateCustomerSessionRequest) (CreateCustomerSessionResponse, error)
+	DownloadNestedFile(request *DownloadNestedFileRequest) (DownloadNestedFileResponse, error)
+	DownloadImage(request *DownloadImageRequest) (DownloadImageResponse, error)
+	ListElements(request *ListElementsRequest) (ListElementsResponse, error)
+	DownloadFile(request *DownloadFileRequest) (DownloadFileResponse, error)
+	GenericFileDownload(request *GenericFileDownloadRequest) (GenericFileDownloadResponse, error)
+	GetRental(request *GetRentalRequest) (GetRentalResponse, error)
+	GetShoes(request *GetShoesRequest) (GetShoesResponse, error)
+	PostUpload(request *PostUploadRequest) (PostUploadResponse, error)
+}
+
+func NewVisAdminClient(httpClient *http.Client, baseUrl string, options Opts) VisAdminClient {
+	return &visAdminClient{httpClient: newHttpClientWrapper(httpClient, baseUrl), baseURL: baseUrl, hooks: options.Hooks, ctx: options.Ctx, xmlMatcher: regexp.MustCompile("^application\\/(.+)xml$")}
+}
