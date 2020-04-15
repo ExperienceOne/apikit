@@ -56,7 +56,7 @@ See the [compliance list](Compliance.md) for a detailed list of supported OpenAP
 ## Installation
 
 ```bash
-git clone git@gitlab.nolteundlauth.de:golang/apikit.git
+git clone git@github.com:ExperienceOne/apikit.git
 cd apikit
 make install
 ```
