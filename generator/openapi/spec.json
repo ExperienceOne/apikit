@@ -3,11 +3,7 @@
   "info": {
     "description": "Vehicle Information Service Admin API",
     "version": "1.0.0",
-    "title": "vis-admin",
-    "contact": {
-      "name": "Marcel Edmund Franke",
-      "email": "marcel.franke@nolteundlauth.de"
-    }
+    "title": "vis-admin"
   },
   "consumes": [
     "application/json"

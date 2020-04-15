@@ -41,7 +41,7 @@ type Input7 struct {
 
 func TestValidator(t *testing.T) {
 
-	emailInvalid := "examplenolteudlauth.de"
+	emailInvalid := "invalidmail.de"
 	pint := int(1)
 
 	tests := []struct {
