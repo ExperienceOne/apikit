@@ -1,4 +1,4 @@
-package basket
+package todo
 
 import (
 	"context"
@@ -542,10 +542,10 @@ func (v *Validator) ValidateRequest(request interface{}) (*ValidationErrorsObjec
 }
 
 const (
-	GitCommit string = "436ae9a0d9237f682cc64bde60630c68adf2ab5d"
+	GitCommit string = "2113b084c4c1722c75bcf9a97e6a776aeefdeda7"
 	GitBranch string = "master"
 	GitTag    string = "v1.0.0"
-	BuildTime string = "Tue Apr 14 10:02:02 CEST 2020"
+	BuildTime string = "Tue Apr 14 15:39:22 CEST 2020"
 )
 
 type VersionInfo struct {

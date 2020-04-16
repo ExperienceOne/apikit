@@ -5,25 +5,25 @@ import (
 	"os/signal"
 	"syscall"
 
-	basket "github.com/ExperienceOne/apikit/example"
+	todo "github.com/ExperienceOne/apikit/example"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
-var basketService *basket.Service
+var todoService *todo.Service
 
 func main() {
 
 	app := cli.NewApp()
-	app.Name = "Basket Service"
+	app.Name = "Todo Service"
 
 	app.Action = func(ctx *cli.Context) error {
 
 		log.SetFormatter(&log.JSONFormatter{})
 
-		service := basket.NewService()
-		basketService = service
+		service := todo.NewService()
+		todoService = service
 
 		return service.Start(9001)
 	}
@@ -33,9 +33,9 @@ func main() {
 	go func() {
 		<-sigint
 
-		if basketService != nil {
-			if err := basketService.Stop(); err != nil {
-				log.WithError(err).Error("failed to stop Basket Service")
+		if todoService != nil {
+			if err := todoService.Stop(); err != nil {
+				log.WithError(err).Error("failed to stop todo service")
 				os.Exit(-1)
 			}
 		}
@@ -44,6 +44,6 @@ func main() {
 	}()
 
 	if err := app.Run(os.Args); err != nil {
-		log.WithError(err).Error("failed to start Basket Service")
+		log.WithError(err).Error("failed to start todo service")
 	}
 }
