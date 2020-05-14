@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  title: Basket Service
+  title: Todo Service
   version: 1.0.0
 host: "localhost:9001"
 schemes:
@@ -10,45 +10,107 @@ consumes:
 produces:
   - application/json
 paths:
-  /item:
-    post:
-      operationId: PostItem
-      parameters:
-        - $ref: "#/parameters/ItemParameter"
-      responses:
-        "200":
-          description: OK
-        "500":
-          description: Internal server error (e.g. unexpected condition occurred)
-  /items:
+  /todos:
     get:
-      operationId: GetItems
+      operationId: ListTodos
       responses:
         "200":
-          description: Items posted
+          description: List of todos
           schema:
-            $ref: "#/definitions/Items"
+            $ref: "#/definitions/TodoList"
+    post:
+      operationId: PostTodo
+      parameters:
+        - $ref: "#/parameters/TodoPost"
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: "#/definitions/Todo"
+    delete:
+      operationId: DeleteTodos
+      responses:
+        "204":
+          description: Ok
+  /todos/{todoId}:
+    parameters:
+      - $ref: "#/parameters/TodoId"
+    get:
+      operationId: GetTodo
+      responses:
+        "200":
+          description: Successful
+          schema:
+            $ref: "#/definitions/Todo"
+        "404":
+          description: Not found
+    patch:
+      operationId: PatchTodo
+      parameters:
+        - $ref: "#/parameters/TodoPatch"
+      responses:
+        "200":
+          description: Successful
+          schema:
+            $ref: "#/definitions/Todo"
+        "404":
+          description: Not found
+    delete:
+      operationId: DeleteTodo
+      responses:
+        "204":
+          description: Ok
+        "404":
+          description: Not found
 parameters:
-  ItemParameter:
-    name: item
+  TodoId:
+    name: todoId
+    in: path
+    required: true
+    type: integer
+  TodoPost:
+    name: todoPost
     in: body
     schema:
-      $ref: "#/definitions/Item"
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+  TodoPatch:
+    name: TodoPatch
+    in: body
+    schema:
+      type: object
+      properties:
+        title:
+          type: string
+        order:
+          type: integer
+        completed:
+          type: boolean
 definitions:
-  Item:
+  TodoList:
+    type: array
+    items:
+      $ref: "#/definitions/Todo"
+  Todo:
     type: object
     required:
       - id
-      - name
-      - price
+      - title
+      - order
+      - completed
+      - url
     properties:
       id:
         type: integer
-      name:
+      title:
         type: string
-      price:
-        type: number
-  Items:
-    type: array
-    items:
-      $ref: "#/definitions/Item"
+      order:
+        type: integer
+      completed:
+        type: boolean
+      url:
+        type: string
