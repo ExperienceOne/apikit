@@ -7,7 +7,7 @@
   - [Requirements](#requirements)
   - [Installation](#installation)
   - [Usage](#usage)
-    - [Generate standart project structure](#generate-standart-project-structure)
+    - [Generate standard project structure](#generate-standard-project-structure)
     - [Define the API with OpenAPIv2](#define-the-api-with-openapiv2)
     - [Validate the OpenAPIv2 definition](#validate-the-openapiv2-definition)
     - [Generate API server and client](#generate-api-server-and-client)
@@ -63,7 +63,7 @@ make install
 
 ## Usage
 
-### Generate standart project structure
+### Generate standard project structure
 
 The command `apikit project <dest.dir> <path/of/package>` generates a standard project directory.
 
