@@ -47,6 +47,7 @@ const (
 	ContentTypeApplicationFormUrlencoded string = "application/x-www-form-urlencoded"
 	ContentTypeApplicationPDF            string = "application/pdf"
 	ContentTypeApplicationXMLPattern     string = `^application\/(.+)xml$`
+	ContentTypeApplicationOctetStream string = "application/octet-stream"
 )
 
 var ContentTypesForFiles []string = []string{
@@ -60,6 +61,7 @@ var ContentTypesForFiles []string = []string{
 	ContentTypeImageTiff,
 	ContentTypeImageXIcon,
 	ContentTypeApplicationPDF,
+	ContentTypeApplicationOctetStream,
 }
 
 var supportedProduces []string = []string{
@@ -80,6 +82,7 @@ var supportedProduces []string = []string{
 	// content types for additional files
 	ContentTypeApplicationPDF,
 	ContentTypeApplicationXMLPattern,
+	ContentTypeApplicationOctetStream,
 }
 
 var supportedConsumes []string = []string{
