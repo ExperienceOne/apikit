@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-var contentTypesForFiles = []string{"application/json", "image/png", "image/jpeg", "image/tiff", "image/webp", "image/svg+xml", "image/gif", "image/tiff", "image/x-icon", "application/pdf"}
+var contentTypesForFiles = []string{"application/json", "image/png", "image/jpeg", "image/tiff", "image/webp", "image/svg+xml", "image/gif", "image/tiff", "image/x-icon", "application/pdf", "application/octet-stream"}
 
 type Address struct {
 	City        string `bson:"city,required" json:"city,required" xml:"city,required"`
@@ -174,6 +174,9 @@ const (
 	ComponentTypesSPECIALEDITION   ComponentTypes = "SPECIAL_EDITION"
 	ComponentTypesSPECIALEQUIPMENT ComponentTypes = "SPECIAL_EQUIPMENT"
 )
+
+// File to be uploaded in request.
+type File io.ReadCloser
 
 // The productGroup of a vehicle case insensitive.
 type ProductGroup string
@@ -1888,6 +1891,50 @@ func (r *ListElements500Response) StatusCode() int {
 }
 
 func (r *ListElements500Response) write(response http.ResponseWriter) error {
+	response.Header()[contentTypeHeader] = []string{}
+	response.WriteHeader(500)
+	return nil
+}
+
+type FileUploadRequestFormData struct {
+	File *MimeFile
+}
+
+type FileUploadRequest struct {
+	FormData FileUploadRequestFormData
+}
+
+type FileUploadResponse interface {
+	isFileUploadResponse()
+	StatusCode() int
+	write(response http.ResponseWriter) error
+}
+
+// File uploaded.
+type FileUpload204Response struct{}
+
+func (r *FileUpload204Response) isFileUploadResponse() {}
+
+func (r *FileUpload204Response) StatusCode() int {
+	return 204
+}
+
+func (r *FileUpload204Response) write(response http.ResponseWriter) error {
+	response.Header()[contentTypeHeader] = []string{}
+	response.WriteHeader(204)
+	return nil
+}
+
+// Internal server error
+type FileUpload500Response struct{}
+
+func (r *FileUpload500Response) isFileUploadResponse() {}
+
+func (r *FileUpload500Response) StatusCode() int {
+	return 500
+}
+
+func (r *FileUpload500Response) write(response http.ResponseWriter) error {
 	response.Header()[contentTypeHeader] = []string{}
 	response.WriteHeader(500)
 	return nil

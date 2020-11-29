@@ -314,10 +314,23 @@ func (gen *goTypesGenerator) makeParameter(parameter *spec.Parameter) (*types.Ty
 			return enumType, nil
 		}
 
+	} else if parameter.Type == "file" {
+
+		return types.NewFile(strings.Title(parameter.Name), parameter.Required), nil
+
 	} else {
 		typ, err := types.FromSimpleSchema("", &parameter.SimpleSchema, parameter.Required, &parameter.CommonValidations)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"parameter": parameter,
+			}).WithError(err).Error("failed to read type from simple schema")
+
+			return nil, fmt.Errorf("failed to read type from simple schema - %w", err)
+		}
+
 		gen.validators.AddAll(typ.GetValidators())
-		return typ, err
+
+		return typ, nil
 	}
 }
 

@@ -94,9 +94,9 @@ func GetUserInfo(ctx context.Context, request *GetUserInfoRequest) GetUserInfoRe
 	return &GetUserInfo200Response{
 		Body: User{
 			GrantedProtocolMappers: map[string]string{"key": "value"},
-			Id:          id,
-			Password:    password,
-			Permissions: []string{one, two, three},
+			Id:                     id,
+			Password:               password,
+			Permissions:            []string{one, two, three},
 		},
 	}
 }
@@ -349,4 +349,23 @@ func NestedFileDownload(ctx context.Context, req *DownloadNestedFileRequest) Dow
 func GetShoes(ctx context.Context, req *GetShoesRequest) GetShoesResponse {
 
 	return &GetShoes200Response{Body: Shoes{}}
+}
+
+func FileUpload(ctx context.Context, req *FileUploadRequest) FileUploadResponse {
+
+	defer req.FormData.File.Content.Close()
+
+	buff, err := ioutil.ReadAll(req.FormData.File.Content)
+	if err != nil {
+		log.Println(fmt.Sprintf("error reading uploaded file (%v)", err))
+		return new(FileUpload500Response)
+	}
+
+	if string(buff) != "Hello world, file" {
+		log.Println("content of file:")
+		log.Println(string(buff))
+		return new(FileUpload500Response)
+	}
+
+	return new(FileUpload204Response)
 }

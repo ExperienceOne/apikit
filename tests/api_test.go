@@ -32,8 +32,8 @@ var testServerWrapper *api.VisAdminServer
 func TestMain(m *testing.M) {
 
 	middlewares := []api.Middleware{
-		api.Middleware{Handler: api.RouterPanicMiddleware()},
-		api.Middleware{Handler: api.RouterPopulateContextMiddleware()},
+		{Handler: api.RouterPanicMiddleware()},
+		{Handler: api.RouterPopulateContextMiddleware()},
 	}
 
 	testServerWrapper = api.NewVisAdminServer(&api.ServerOpts{
@@ -67,6 +67,7 @@ func TestMain(m *testing.M) {
 	testServerWrapper.SetCreateCustomerSessionHandler(api.CreateCustomerSession)
 	testServerWrapper.SetDownloadNestedFileHandler(api.NestedFileDownload)
 	testServerWrapper.SetGetShoesHandler(api.GetShoes)
+	testServerWrapper.SetFileUploadHandler(api.FileUpload)
 
 	go testServerWrapper.Start(4567)
 	time.Sleep(1 * time.Second)
@@ -736,5 +737,28 @@ func TestDownloadNestedFile(t *testing.T) {
 
 	if resp200.Body.Data == nil {
 		t.Fatal("file is nil")
+	}
+}
+
+func TestFileUpload(t *testing.T) {
+	t.Parallel()
+
+	buffer := bytes.NewBufferString("Hello world, file")
+	req := api.FileUploadRequest{
+		FormData: api.FileUploadRequestFormData{
+			File: &api.MimeFile{
+				Content: ioutil.NopCloser(buffer),
+			},
+		},
+	}
+
+	resp, err := VisAdminClient.FileUpload(&req)
+	if err != nil {
+		t.Fatalf("error during file upload: %v", err)
+	}
+
+	_, ok := resp.(*api.FileUpload204Response)
+	if !ok {
+		t.Fatalf("unexpected FileUploadResponse: %#v", resp)
 	}
 }

@@ -2179,6 +2179,78 @@ func (client *visAdminClient) ListElements(request *ListElementsRequest) (ListEl
 	return nil, newUnknownResponseError(httpResponse.StatusCode)
 }
 
+func (client *visAdminClient) FileUpload(request *FileUploadRequest) (FileUploadResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/file-upload"
+	method := "POST"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	formData := new(bytes.Buffer)
+	bodyWriter := multipart.NewWriter(formData)
+	if request.FormData.File != nil {
+		fileWriter0, writerErr0 := bodyWriter.CreateFormFile("file", "file")
+		if writerErr0 != nil {
+			bodyWriter.Close()
+			return nil, writerErr0
+		}
+		_, copyFileErr0 := io.Copy(fileWriter0, request.FormData.File.Content)
+		if copyFileErr0 != nil {
+			bodyWriter.Close()
+			return nil, copyFileErr0
+		}
+	}
+	contentType := bodyWriter.FormDataContentType()
+	bodyWriter.Close()
+	httpRequest, reqErr := http.NewRequest(method, endpoint, formData)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	httpRequest.Header[contentTypeHeader] = []string{contentType}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	if httpResponse.StatusCode == 204 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(FileUpload204Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == 500 {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			httpResponse.Body.Close()
+			response := new(FileUpload500Response)
+			return response, nil
+		}
+		httpResponse.Body.Close()
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		httpResponse.Body.Close()
+		return nil, errors.New(message)
+	}
+	httpResponse.Body.Close()
+	return nil, newUnknownResponseError(httpResponse.StatusCode)
+}
+
 // Retrieve a file
 func (client *visAdminClient) DownloadFile(request *DownloadFileRequest) (DownloadFileResponse, error) {
 	return nil, newNotSupportedContentType(415, "no supported content type")
@@ -2508,6 +2580,7 @@ type VisAdminClient interface {
 	DownloadNestedFile(request *DownloadNestedFileRequest) (DownloadNestedFileResponse, error)
 	DownloadImage(request *DownloadImageRequest) (DownloadImageResponse, error)
 	ListElements(request *ListElementsRequest) (ListElementsResponse, error)
+	FileUpload(request *FileUploadRequest) (FileUploadResponse, error)
 	DownloadFile(request *DownloadFileRequest) (DownloadFileResponse, error)
 	GenericFileDownload(request *GenericFileDownloadRequest) (GenericFileDownloadResponse, error)
 	GetRental(request *GetRentalRequest) (GetRentalResponse, error)

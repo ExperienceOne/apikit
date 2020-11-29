@@ -542,10 +542,10 @@ func (v *Validator) ValidateRequest(request interface{}) (*ValidationErrorsObjec
 }
 
 const (
-	GitCommit string = "3ffc6ace6671100b8a7deb8d14ba48a892d1d806"
-	GitBranch string = "master"
+	GitCommit string = "dfd96f431e46e6e048b2e9fd4dea0d30193a6b36"
+	GitBranch string = "issue-4-reference-file-upload-param"
 	GitTag    string = "v1.0.0"
-	BuildTime string = "Tue Apr 14 14:14:33 CEST 2020"
+	BuildTime string = "So 29 Nov 2020 17:37:40 CET"
 )
 
 type VersionInfo struct {
