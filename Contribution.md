@@ -1,4 +1,5 @@
 # Contribution Guidelines
+
 ## I have found a bug!
 Please search the issue tracker if somebody else already filed a ticket for the problem. If yes, please amend your information to the ticket. Otherwise, create a new one with the following information.
 
@@ -8,6 +9,16 @@ Please search the issue tracker if somebody else already filed a ticket for the 
  - a description of the expected behaviour
 
 We will process the bug ticket as soon as possible.
+
+## I have found a security issue!
+Please contact us via email (apikit-security@experienceone.com)
+
+We will need the following information.
+
+- the used version, tag, branch or commit of the APIKit
+- a description of the security issue
+- attack vectors
+- a possible fix for the issue
 
 ## What do I need to know to help?
 If you are looking to help to with a code contribution our project using Golang please first have a look at the technologies we used to build the APIKit.
