@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-var contentTypesForFiles = []string{"application/json", "image/png", "image/jpeg", "image/tiff", "image/webp", "image/svg+xml", "image/gif", "image/tiff", "image/x-icon", "application/pdf"}
+var contentTypesForFiles = []string{"application/json", "image/png", "image/jpeg", "image/tiff", "image/webp", "image/svg+xml", "image/gif", "image/tiff", "image/x-icon", "application/pdf", "application/octet-stream"}
 
 type Address struct {
 	City        string `bson:"city,required" json:"city,required" xml:"city,required"`

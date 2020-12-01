@@ -46,7 +46,7 @@ func (client *visAdminClient) GetClients(request *GetClientsRequest) (GetClients
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(GetClients200Response)
@@ -65,7 +65,7 @@ func (client *visAdminClient) GetClients(request *GetClientsRequest) (GetClients
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 204 {
+	if httpResponse.StatusCode == http.StatusNoContent {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -76,7 +76,7 @@ func (client *visAdminClient) GetClients(request *GetClientsRequest) (GetClients
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -122,7 +122,7 @@ func (client *visAdminClient) DeleteClient(request *DeleteClientRequest) (Delete
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -133,7 +133,7 @@ func (client *visAdminClient) DeleteClient(request *DeleteClientRequest) (Delete
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -144,7 +144,7 @@ func (client *visAdminClient) DeleteClient(request *DeleteClientRequest) (Delete
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 404 {
+	if httpResponse.StatusCode == http.StatusNotFound {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -190,7 +190,7 @@ func (client *visAdminClient) GetClient(request *GetClientRequest) (GetClientRes
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(GetClient200Response)
@@ -209,7 +209,7 @@ func (client *visAdminClient) GetClient(request *GetClientRequest) (GetClientRes
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -220,7 +220,7 @@ func (client *visAdminClient) GetClient(request *GetClientRequest) (GetClientRes
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 404 {
+	if httpResponse.StatusCode == http.StatusNotFound {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -272,7 +272,7 @@ func (client *visAdminClient) CreateOrUpdateClient(request *CreateOrUpdateClient
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -283,7 +283,7 @@ func (client *visAdminClient) CreateOrUpdateClient(request *CreateOrUpdateClient
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 201 {
+	if httpResponse.StatusCode == http.StatusCreated {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -294,7 +294,7 @@ func (client *visAdminClient) CreateOrUpdateClient(request *CreateOrUpdateClient
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 400 {
+	if httpResponse.StatusCode == http.StatusBadRequest {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -305,7 +305,7 @@ func (client *visAdminClient) CreateOrUpdateClient(request *CreateOrUpdateClient
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -316,7 +316,7 @@ func (client *visAdminClient) CreateOrUpdateClient(request *CreateOrUpdateClient
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 405 {
+	if httpResponse.StatusCode == http.StatusMethodNotAllowed {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -362,7 +362,7 @@ func (client *visAdminClient) GetViewsSets(request *GetViewsSetsRequest) (GetVie
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(GetViewsSets200Response)
@@ -381,7 +381,7 @@ func (client *visAdminClient) GetViewsSets(request *GetViewsSetsRequest) (GetVie
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -428,7 +428,7 @@ func (client *visAdminClient) DeleteViewsSet(request *DeleteViewsSetRequest) (De
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -439,7 +439,7 @@ func (client *visAdminClient) DeleteViewsSet(request *DeleteViewsSetRequest) (De
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -450,7 +450,7 @@ func (client *visAdminClient) DeleteViewsSet(request *DeleteViewsSetRequest) (De
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 404 {
+	if httpResponse.StatusCode == http.StatusNotFound {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -503,7 +503,7 @@ func (client *visAdminClient) GetViewsSet(request *GetViewsSetRequest) (GetViews
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(GetViewsSet200Response)
@@ -522,7 +522,7 @@ func (client *visAdminClient) GetViewsSet(request *GetViewsSetRequest) (GetViews
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -533,7 +533,7 @@ func (client *visAdminClient) GetViewsSet(request *GetViewsSetRequest) (GetViews
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 404 {
+	if httpResponse.StatusCode == http.StatusNotFound {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -581,7 +581,7 @@ func (client *visAdminClient) ActivateViewsSet(request *ActivateViewsSetRequest)
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -592,7 +592,7 @@ func (client *visAdminClient) ActivateViewsSet(request *ActivateViewsSetRequest)
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -603,7 +603,7 @@ func (client *visAdminClient) ActivateViewsSet(request *ActivateViewsSetRequest)
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 404 {
+	if httpResponse.StatusCode == http.StatusNotFound {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -656,7 +656,7 @@ func (client *visAdminClient) CreateOrUpdateViewsSet(request *CreateOrUpdateView
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -667,7 +667,7 @@ func (client *visAdminClient) CreateOrUpdateViewsSet(request *CreateOrUpdateView
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 201 {
+	if httpResponse.StatusCode == http.StatusCreated {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -678,7 +678,7 @@ func (client *visAdminClient) CreateOrUpdateViewsSet(request *CreateOrUpdateView
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 400 {
+	if httpResponse.StatusCode == http.StatusBadRequest {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -689,7 +689,7 @@ func (client *visAdminClient) CreateOrUpdateViewsSet(request *CreateOrUpdateView
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -700,7 +700,7 @@ func (client *visAdminClient) CreateOrUpdateViewsSet(request *CreateOrUpdateView
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 405 {
+	if httpResponse.StatusCode == http.StatusMethodNotAllowed {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -750,7 +750,7 @@ func (client *visAdminClient) ShowVehicleInView(request *ShowVehicleInViewReques
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -761,7 +761,7 @@ func (client *visAdminClient) ShowVehicleInView(request *ShowVehicleInViewReques
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -772,7 +772,7 @@ func (client *visAdminClient) ShowVehicleInView(request *ShowVehicleInViewReques
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 404 {
+	if httpResponse.StatusCode == http.StatusNotFound {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -821,7 +821,7 @@ func (client *visAdminClient) GetPermissions(request *GetPermissionsRequest) (Ge
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(GetPermissions200Response)
@@ -840,7 +840,7 @@ func (client *visAdminClient) GetPermissions(request *GetPermissionsRequest) (Ge
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -885,7 +885,7 @@ func (client *visAdminClient) DestroySession(request *DestroySessionRequest) (De
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -896,7 +896,7 @@ func (client *visAdminClient) DestroySession(request *DestroySessionRequest) (De
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 404 {
+	if httpResponse.StatusCode == http.StatusNotFound {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -944,7 +944,7 @@ func (client *visAdminClient) GetUserInfo(request *GetUserInfoRequest) (GetUserI
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(GetUserInfo200Response)
@@ -963,7 +963,7 @@ func (client *visAdminClient) GetUserInfo(request *GetUserInfoRequest) (GetUserI
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 400 {
+	if httpResponse.StatusCode == http.StatusBadRequest {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(GetUserInfo400Response)
@@ -982,7 +982,7 @@ func (client *visAdminClient) GetUserInfo(request *GetUserInfoRequest) (GetUserI
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1032,7 +1032,7 @@ func (client *visAdminClient) CreateSession(request *CreateSessionRequest) (Crea
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1046,7 +1046,7 @@ func (client *visAdminClient) CreateSession(request *CreateSessionRequest) (Crea
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 400 {
+	if httpResponse.StatusCode == http.StatusBadRequest {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(CreateSession400Response)
@@ -1065,7 +1065,7 @@ func (client *visAdminClient) CreateSession(request *CreateSessionRequest) (Crea
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 401 {
+	if httpResponse.StatusCode == http.StatusUnauthorized {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1110,7 +1110,7 @@ func (client *visAdminClient) GetUsers(request *GetUsersRequest) (GetUsersRespon
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(GetUsers200Response)
@@ -1129,7 +1129,7 @@ func (client *visAdminClient) GetUsers(request *GetUsersRequest) (GetUsersRespon
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1183,7 +1183,7 @@ func (client *visAdminClient) DeleteUser(request *DeleteUserRequest) (DeleteUser
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1194,7 +1194,7 @@ func (client *visAdminClient) DeleteUser(request *DeleteUserRequest) (DeleteUser
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1205,7 +1205,7 @@ func (client *visAdminClient) DeleteUser(request *DeleteUserRequest) (DeleteUser
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 404 {
+	if httpResponse.StatusCode == http.StatusNotFound {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1259,7 +1259,7 @@ func (client *visAdminClient) GetUser(request *GetUserRequest) (GetUserResponse,
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(GetUser200Response)
@@ -1278,7 +1278,7 @@ func (client *visAdminClient) GetUser(request *GetUserRequest) (GetUserResponse,
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1289,7 +1289,7 @@ func (client *visAdminClient) GetUser(request *GetUserRequest) (GetUserResponse,
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 404 {
+	if httpResponse.StatusCode == http.StatusNotFound {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1349,7 +1349,7 @@ func (client *visAdminClient) CreateOrUpdateUser(request *CreateOrUpdateUserRequ
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1360,7 +1360,7 @@ func (client *visAdminClient) CreateOrUpdateUser(request *CreateOrUpdateUserRequ
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 201 {
+	if httpResponse.StatusCode == http.StatusCreated {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1371,7 +1371,7 @@ func (client *visAdminClient) CreateOrUpdateUser(request *CreateOrUpdateUserRequ
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 400 {
+	if httpResponse.StatusCode == http.StatusBadRequest {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1382,7 +1382,7 @@ func (client *visAdminClient) CreateOrUpdateUser(request *CreateOrUpdateUserRequ
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1393,7 +1393,7 @@ func (client *visAdminClient) CreateOrUpdateUser(request *CreateOrUpdateUserRequ
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 405 {
+	if httpResponse.StatusCode == http.StatusMethodNotAllowed {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1455,7 +1455,7 @@ func (client *visAdminClient) GetBookings(request *GetBookingsRequest) (GetBooki
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(GetBookings200Response)
@@ -1474,7 +1474,7 @@ func (client *visAdminClient) GetBookings(request *GetBookingsRequest) (GetBooki
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 400 {
+	if httpResponse.StatusCode == http.StatusBadRequest {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1485,7 +1485,7 @@ func (client *visAdminClient) GetBookings(request *GetBookingsRequest) (GetBooki
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 401 {
+	if httpResponse.StatusCode == http.StatusUnauthorized {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1496,7 +1496,7 @@ func (client *visAdminClient) GetBookings(request *GetBookingsRequest) (GetBooki
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 404 {
+	if httpResponse.StatusCode == http.StatusNotFound {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1507,7 +1507,7 @@ func (client *visAdminClient) GetBookings(request *GetBookingsRequest) (GetBooki
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 500 {
+	if httpResponse.StatusCode == http.StatusInternalServerError {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1572,7 +1572,7 @@ func (client *visAdminClient) ListModels(request *ListModelsRequest) (ListModels
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(ListModels200Response)
@@ -1633,7 +1633,7 @@ func (client *visAdminClient) GetClasses(request *GetClassesRequest) (GetClasses
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(GetClasses200Response)
@@ -1652,7 +1652,7 @@ func (client *visAdminClient) GetClasses(request *GetClassesRequest) (GetClasses
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 400 {
+	if httpResponse.StatusCode == http.StatusBadRequest {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(GetClasses400Response)
@@ -1721,7 +1721,7 @@ func (client *visAdminClient) Code(request *CodeRequest) (CodeResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(Code200Response)
@@ -1740,7 +1740,7 @@ func (client *visAdminClient) Code(request *CodeRequest) (CodeResponse, error) {
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 400 {
+	if httpResponse.StatusCode == http.StatusBadRequest {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1751,7 +1751,7 @@ func (client *visAdminClient) Code(request *CodeRequest) (CodeResponse, error) {
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 401 {
+	if httpResponse.StatusCode == http.StatusUnauthorized {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1762,7 +1762,7 @@ func (client *visAdminClient) Code(request *CodeRequest) (CodeResponse, error) {
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 404 {
+	if httpResponse.StatusCode == http.StatusNotFound {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1773,7 +1773,7 @@ func (client *visAdminClient) Code(request *CodeRequest) (CodeResponse, error) {
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 500 {
+	if httpResponse.StatusCode == http.StatusInternalServerError {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1824,7 +1824,7 @@ func (client *visAdminClient) DeleteCustomerSession(request *DeleteCustomerSessi
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 204 {
+	if httpResponse.StatusCode == http.StatusNoContent {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1835,7 +1835,7 @@ func (client *visAdminClient) DeleteCustomerSession(request *DeleteCustomerSessi
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 401 {
+	if httpResponse.StatusCode == http.StatusUnauthorized {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1846,7 +1846,7 @@ func (client *visAdminClient) DeleteCustomerSession(request *DeleteCustomerSessi
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 500 {
+	if httpResponse.StatusCode == http.StatusInternalServerError {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1904,7 +1904,7 @@ func (client *visAdminClient) CreateCustomerSession(request *CreateCustomerSessi
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 201 {
+	if httpResponse.StatusCode == http.StatusCreated {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(CreateCustomerSession201Response)
@@ -1923,7 +1923,7 @@ func (client *visAdminClient) CreateCustomerSession(request *CreateCustomerSessi
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 401 {
+	if httpResponse.StatusCode == http.StatusUnauthorized {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1934,7 +1934,7 @@ func (client *visAdminClient) CreateCustomerSession(request *CreateCustomerSessi
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 403 {
+	if httpResponse.StatusCode == http.StatusForbidden {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -1945,7 +1945,7 @@ func (client *visAdminClient) CreateCustomerSession(request *CreateCustomerSessi
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 422 {
+	if httpResponse.StatusCode == http.StatusUnprocessableEntity {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(CreateCustomerSession422Response)
@@ -1964,7 +1964,7 @@ func (client *visAdminClient) CreateCustomerSession(request *CreateCustomerSessi
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 500 {
+	if httpResponse.StatusCode == http.StatusInternalServerError {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -2011,7 +2011,7 @@ func (client *visAdminClient) DownloadNestedFile(request *DownloadNestedFileRequ
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(DownloadNestedFile200Response)
@@ -2065,7 +2065,7 @@ func (client *visAdminClient) DownloadImage(request *DownloadImageRequest) (Down
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeInList(contentTypesForFiles, contentTypeOfResponse) {
 			response := new(DownloadImage200Response)
@@ -2079,7 +2079,7 @@ func (client *visAdminClient) DownloadImage(request *DownloadImageRequest) (Down
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 500 {
+	if httpResponse.StatusCode == http.StatusInternalServerError {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -2134,7 +2134,7 @@ func (client *visAdminClient) ListElements(request *ListElementsRequest) (ListEl
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(ListElements200Response)
@@ -2159,7 +2159,7 @@ func (client *visAdminClient) ListElements(request *ListElementsRequest) (ListEl
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 500 {
+	if httpResponse.StatusCode == http.StatusInternalServerError {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -2210,7 +2210,7 @@ func (client *visAdminClient) GenericFileDownload(request *GenericFileDownloadRe
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeInList(contentTypesForFiles, contentTypeOfResponse) {
 			response := new(GenericFileDownload200Response)
@@ -2252,7 +2252,7 @@ func (client *visAdminClient) GenericFileDownload(request *GenericFileDownloadRe
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 500 {
+	if httpResponse.StatusCode == http.StatusInternalServerError {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -2303,7 +2303,7 @@ func (client *visAdminClient) GetRental(request *GetRentalRequest) (GetRentalRes
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -2314,7 +2314,7 @@ func (client *visAdminClient) GetRental(request *GetRentalRequest) (GetRentalRes
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 400 {
+	if httpResponse.StatusCode == http.StatusBadRequest {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(GetRental400Response)
@@ -2366,7 +2366,7 @@ func (client *visAdminClient) GetShoes(request *GetShoesRequest) (GetShoesRespon
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(GetShoes200Response)
@@ -2448,7 +2448,7 @@ func (client *visAdminClient) PostUpload(request *PostUploadRequest) (PostUpload
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()
@@ -2459,7 +2459,7 @@ func (client *visAdminClient) PostUpload(request *PostUploadRequest) (PostUpload
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 500 {
+	if httpResponse.StatusCode == http.StatusInternalServerError {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
 			httpResponse.Body.Close()

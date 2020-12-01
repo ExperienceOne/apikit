@@ -2,6 +2,7 @@ package generator
 
 import (
 	"fmt"
+	"github.com/ExperienceOne/apikit/generator/xhttp"
 	"sort"
 	"strconv"
 	"strings"
@@ -396,7 +397,7 @@ func (gen *goClientGenerator) generateResponse(operation *Operation, statusCode 
 	// Entity body
 	// 	https://tools.ietf.org/search/rfc2616#section-7.2.1
 
-	stmts.If(jen.Id("httpResponse").Dot("StatusCode").Op("==").Lit(statusCode)).BlockFunc(func(stmts *jen.Group) {
+	stmts.If(jen.Id("httpResponse").Dot("StatusCode").Op("==").Id(xhttp.ResolveStatusCode(statusCode))).BlockFunc(func(stmts *jen.Group) {
 
 		hasContentType := false
 
