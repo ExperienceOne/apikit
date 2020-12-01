@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"math"
 	"regexp"
 	"sort"
 
@@ -18,25 +19,44 @@ func getDefinitionName(schema spec.Schema) string {
 	return ""
 }
 
-func walkResponses(respones map[int]spec.Response, f func(statusCode int, response spec.Response)) {
+func walkResponses(operation *Operation, f func(statusCode int, response spec.Response)) {
+	responses := operation.Responses.StatusCodeResponses
 
-	statusCodesOrder := make([]int, 0, len(respones))
-	for statusCode := range respones {
-		statusCodesOrder = append(statusCodesOrder, statusCode)
+	type Priority struct {
+		statusCode int
+		value int
 	}
-	sort.Ints(statusCodesOrder)
 
-	for _, statusCode := range statusCodesOrder {
-		f(statusCode, respones[statusCode])
+	statusCodesOrder := make([]Priority, 0, len(responses))
+	for statusCode := range responses {
+		// change priority of response types with file content
+		p := Priority{
+			statusCode: statusCode,
+			value: statusCode,
+		}
+
+		if responses[statusCode].Schema != nil && responses[statusCode].Schema.Type.Contains("file") && operation.HasProduces(ContentTypesForFiles...) {
+			p.value = int(math.Inf(1))
+		}
+
+		statusCodesOrder = append(statusCodesOrder, p)
+	}
+
+	sort.Slice(statusCodesOrder, func(i, j int) bool {
+		return statusCodesOrder[i].value < statusCodesOrder[j].value
+	})
+
+	for _, v := range statusCodesOrder {
+		f(v.statusCode, responses[v.statusCode])
 	}
 }
 
-func hasFileEndpointValidProduce(respones map[int]spec.Response, operation *Operation) (bool, int) {
+func hasFileEndpointValidProduce(operation *Operation) (bool, int) {
 
 	var match bool
 	var counter int
 
-	walkResponses(respones, func(statusCode int, response spec.Response) {
+	walkResponses(operation, func(statusCode int, response spec.Response) {
 		if response.Schema != nil && response.Schema.Type.Contains("file") {
 			match = true
 			if operation.HasProduces(ContentTypesForFiles...) {

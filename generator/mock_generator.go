@@ -76,7 +76,7 @@ func (gen *GoClientMockGenerator) generateOperation(structName string, operation
 	}
 
 	var code []jen.Code
-	walkResponses(operation.Responses.StatusCodeResponses, func(status int, response spec.Response) {
+	walkResponses(operation, func(status int, response spec.Response) {
 		handler, err := gen.makeStatusCode("client", operation, status, response)
 		if err != nil {
 			log.WithError(err).Error(fmt.Sprintf("error generating code for %s '%v' status code %d", operation.Method, operation.Operation, status))
