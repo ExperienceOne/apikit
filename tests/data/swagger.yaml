@@ -815,6 +815,20 @@ paths:
           description: Successful
           schema:
             $ref: '#/definitions/Shoes'
+
+  /file-upload:
+    post:
+      summary: File upload
+      operationId: FileUpload
+      consumes:
+        - multipart/form-data
+      parameters:
+        - $ref: '#/parameters/fileParam'
+      responses:
+        '204':
+          description: File uploaded.
+        '500':
+          description: Internal server error
 securityDefinitions:
   X-Session-ID:
     type: apiKey
@@ -1201,3 +1215,8 @@ parameters:
     - CITAN
     - SMART
     required: true
+  fileParam:
+    type: file
+    description: File to be uploaded in request.
+    name: file
+    in: formData
