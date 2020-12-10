@@ -343,7 +343,7 @@ func (gen *goTypesGenerator) generateResponses(operation *Operation, file *file.
 		jen.Id("write").Params(jen.Id("response").Qual("net/http", "ResponseWriter")).Error(),
 	).Line()
 
-	walkResponses(operation.Responses.StatusCodeResponses, func(statusCode int, response spec.Response) {
+	walkResponses(operation, func(statusCode int, response spec.Response) {
 
 		responseName := strings.Title(fmt.Sprintf("%s%dResponse", operation.ID, statusCode))
 		responseType, err := gen.makeResponse(responseName, response.Schema, response.Headers)

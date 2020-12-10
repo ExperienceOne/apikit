@@ -135,7 +135,7 @@ func (gen *goClientGenerator) generateOperation(operation *Operation, nameOfClie
 			return
 		}
 
-		if match, valid := hasFileEndpointValidProduce(operation.Responses.StatusCodeResponses, operation); match && valid == 0 {
+		if match, valid := hasFileEndpointValidProduce(operation); match && valid == 0 {
 			gen.generateNotSupported(operation, strings.Join(operation.Consumes, ","), true, stmts)
 			return
 		}
@@ -340,6 +340,18 @@ func (gen *goClientGenerator) generateOperation(operation *Operation, nameOfClie
 			jen.Return(jen.Nil(), jen.Id("err")),
 		)
 
+		lastFileResponseIndex := -1
+		walkResponses(operation, func(statusCode int, response spec.Response) {
+			if  response.Schema != nil && response.Schema.Type.Contains("file") && operation.HasProduces(ContentTypesForFiles...) {
+				lastFileResponseIndex++
+			}
+		})
+
+		// if the list of responses has a file response then don't close the http body response type here
+		if lastFileResponseIndex == -1 {
+			stmts.Defer().Id("httpResponse").Dot("Body").Dot("Close").Call()
+		}
+
 		if generatePrometheus {
 			stmts.Id("client").Dot("prometheusHandler").Dot("HandleRequest").Call(
 				jen.Id("path"),
@@ -349,19 +361,23 @@ func (gen *goClientGenerator) generateOperation(operation *Operation, nameOfClie
 			)
 		}
 
-		// cannot defer httpBody.Close() here because in some cases the open Body will be forwarded to user space
-
-		walkResponses(operation.Responses.StatusCodeResponses, func(statusCode int, response spec.Response) {
+		var currentIndex int
+		var addedDeferStatement bool
+		walkResponses(operation, func(statusCode int, response spec.Response) {
 			gen.generateResponse(operation, statusCode, response, stmts)
+			// generate defer http.Response.Close statement after last file response handler
+			if lastFileResponseIndex > -1 && currentIndex == lastFileResponseIndex && addedDeferStatement == false {
+				addedDeferStatement = true
+				stmts.Defer().Id("httpResponse").Dot("Body").Dot("Close").Call()
+			}
+			currentIndex++
 		})
 
 		stmts.If(jen.Id("client").Dot("hooks").Dot("OnUnknownResponseCode").Op("!=").Nil()).Block(
 			jen.Id("message").Op(":=").Id("client").Dot("hooks").Dot("OnUnknownResponseCode").Call(jen.Id("httpResponse"), jen.Id("httpRequest")),
-			jen.Id("httpResponse").Dot("Body").Dot("Close").Call(),
 			jen.Return(jen.Nil(), jen.Qual("errors", "New").Call(jen.Id("message"))),
 		)
 
-		stmts.Id("httpResponse").Dot("Body").Dot("Close").Call()
 		stmts.Return(jen.Nil(), jen.Id("newUnknownResponseError").Call(jen.Id("httpResponse").Dot("StatusCode")))
 	}).Line()
 
@@ -421,13 +437,11 @@ func (gen *goClientGenerator) generateResponse(operation *Operation, statusCode 
 				stmts.Id("response").Op(":=").New(jen.Id(strings.Title(operation.ID) + strconv.Itoa(statusCode) + "Response"))
 				gen.generateHeaders(response.Headers, stmts)
 				stmts.Id("decodeErr").Op(":=").Qual("encoding/json", "NewDecoder").Call(jen.Id("httpResponse").Dot("Body")).Dot("Decode").Call(jen.Op("&").Id("response").Dot("Body"))
-				stmts.Id("httpResponse").Dot("Body").Dot("Close").Call()
 				stmts.If(jen.Id("decodeErr").Op("!=").Nil()).Block(
 					jen.Return(jen.Nil(), jen.Id("decodeErr")),
 				)
 				stmts.Return(jen.Id("response"), jen.Nil())
 			}).Else().If(jen.Id("contentTypeOfResponse").Op("==").Lit("")).BlockFunc(func(stmts *jen.Group) {
-				stmts.Id("httpResponse").Dot("Body").Dot("Close").Call()
 				stmts.Id("response").Op(":=").New(jen.Id(strings.Title(operation.ID) + strconv.Itoa(statusCode) + "Response"))
 				gen.generateHeaders(response.Headers, stmts)
 				stmts.Return(jen.Id("response"), jen.Nil())
@@ -442,13 +456,11 @@ func (gen *goClientGenerator) generateResponse(operation *Operation, statusCode 
 				stmts.Id("response").Op(":=").New(jen.Id(strings.Title(operation.ID) + strconv.Itoa(statusCode) + "Response"))
 				gen.generateHeaders(response.Headers, stmts)
 				stmts.Id("decodeErr").Op(":=").Qual("encoding/xml", "NewDecoder").Call(jen.Id("httpResponse").Dot("Body")).Dot("Decode").Call(jen.Op("&").Id("response").Dot("Body"))
-				stmts.Id("httpResponse").Dot("Body").Dot("Close").Call()
 				stmts.If(jen.Id("decodeErr").Op("!=").Nil()).Block(
 					jen.Return(jen.Nil(), jen.Id("decodeErr")),
 				)
 				stmts.Return(jen.Id("response"), jen.Nil())
 			}).Else().If(jen.Id("contentTypeOfResponse").Op("==").Lit("")).Block(
-				jen.Id("httpResponse").Dot("Body").Dot("Close").Call(),
 				jen.Id("response").Op(":=").New(jen.Id(strings.Title(operation.ID)+strconv.Itoa(statusCode)+"Response")),
 				jen.Return(jen.Id("response"), jen.Nil()),
 			)
@@ -456,16 +468,15 @@ func (gen *goClientGenerator) generateResponse(operation *Operation, statusCode 
 			hasContentType = true
 		}
 
+
 		if !hasContentType {
 			stmts.If(jen.Id("contentTypeOfResponse").Op("==").Lit("")).BlockFunc(func(stmts *jen.Group) {
-				stmts.Id("httpResponse").Dot("Body").Dot("Close").Call()
 				stmts.Id("response").Op(":=").New(jen.Id(strings.Title(operation.ID) + strconv.Itoa(statusCode) + "Response"))
 				gen.generateHeaders(response.Headers, stmts)
 				stmts.Return(jen.Id("response"), jen.Nil())
 			})
 		}
 
-		stmts.Id("httpResponse").Dot("Body").Dot("Close").Call()
 		stmts.Return(jen.Nil(), jen.Id("newNotSupportedContentType").Call(jen.Lit(415), jen.Id("contentTypeOfResponse")))
 
 	}).Line()
