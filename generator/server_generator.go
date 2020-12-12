@@ -362,16 +362,17 @@ func (gen *goServerGenerator) generateHandler(operation *Operation, parametersBu
 			}
 
 			for _, param := range parametersBucket.Query {
-				stmts.If(jen.Len(jen.Id("c").Dot("Request").Dot("URL").Dot("Query").Call().Index(jen.Lit(param.Name))).Op(">").Lit(0)).Block(
+				group := stmts.If(jen.Len(jen.Id("c").Dot("Request").Dot("URL").Dot("Query").Call().Index(jen.Lit(param.Name))).Op(">").Lit(0)).Block(
 					jen.If(jen.Id("err").Op(":=").Id("fromString").Call(jen.Id("c").Dot("Request").Dot("URL").Dot("Query").Call().Index(jen.Lit(param.Name)).Index(jen.Lit(0)), jen.Op("&").Id("request").Dot(strings.Title(identifier.MakeIdentifier(param.Name)))), jen.Id("err").Op("!=").Nil()).Block(
 						jen.Id("server").Dot("ErrorLogger").Call(jen.Qual("fmt", "Sprintf").Call(jen.Lit(logPrefix+"could not convert string to specific type (error: %v)"), jen.Id("err"))),
 						jen.Return(jen.Id("NewHTTPStatusCodeError").Call(jen.Qual("net/http", "StatusBadRequest"))),
 					),
-				).Else().BlockFunc(func(stmts *jen.Group) {
-					if param.Required {
+				)
+				if param.Required {
+					group.Else().BlockFunc(func(stmts *jen.Group) {
 						stmts.Return(jen.Id("NewHTTPStatusCodeError").Call(jen.Qual("net/http", "StatusBadRequest")))
-					}
-				})
+					})
+				}
 			}
 
 			stmts.List(jen.Id("validationErrors"), jen.Id("err")).Op(":=").Id("server").Dot("Validator").Dot("ValidateRequest").Call(jen.Id("request"))
