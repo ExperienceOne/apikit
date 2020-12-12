@@ -542,10 +542,10 @@ func (v *Validator) ValidateRequest(request interface{}) (*ValidationErrorsObjec
 }
 
 const (
-	GitCommit string = "6913078fd4a03d3a65b10a9b84af2576f40f6c8d"
-	GitBranch string = "feature-use-defer-to-close-body-of-http-response"
+	GitCommit string = "bf6f073583430041b50515f8ca58b1a9e90c393b"
+	GitBranch string = "fix-parameter-required-else-block"
 	GitTag    string = "v1.0.0"
-	BuildTime string = "Sa 5. Dez 16:19:07 CET 2020"
+	BuildTime string = "Sa 12. Dez 13:01:48 CET 2020"
 )
 
 type VersionInfo struct {

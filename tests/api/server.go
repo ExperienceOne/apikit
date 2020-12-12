@@ -869,7 +869,6 @@ func (server *VisAdminServer) DeleteUserHandler(c *routing.Context) error {
 				server.ErrorLogger(fmt.Sprintf("wrap handler: DeleteUser (DELETE) could not convert string to specific type (error: %v)", err))
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
-		} else {
 		}
 		validationErrors, err := server.Validator.ValidateRequest(request)
 		if err != nil {
@@ -926,7 +925,6 @@ func (server *VisAdminServer) GetUserHandler(c *routing.Context) error {
 				server.ErrorLogger(fmt.Sprintf("wrap handler: GetUser (GET) could not convert string to specific type (error: %v)", err))
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
-		} else {
 		}
 		validationErrors, err := server.Validator.ValidateRequest(request)
 		if err != nil {
@@ -996,7 +994,6 @@ func (server *VisAdminServer) CreateOrUpdateUserHandler(c *routing.Context) erro
 				server.ErrorLogger(fmt.Sprintf("wrap handler: CreateOrUpdateUser (PUT) could not convert string to specific type (error: %v)", err))
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
-		} else {
 		}
 		validationErrors, err := server.Validator.ValidateRequest(request)
 		if err != nil {
@@ -1066,7 +1063,6 @@ func (server *VisAdminServer) GetBookingsHandler(c *routing.Context) error {
 				server.ErrorLogger(fmt.Sprintf("wrap handler: GetBookings (GET) could not convert string to specific type (error: %v)", err))
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
-		} else {
 		}
 		validationErrors, err := server.Validator.ValidateRequest(request)
 		if err != nil {
@@ -1115,35 +1111,30 @@ func (server *VisAdminServer) ListModelsHandler(c *routing.Context) error {
 				server.ErrorLogger(fmt.Sprintf("wrap handler: ListModels (GET) could not convert string to specific type (error: %v)", err))
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
-		} else {
 		}
 		if len(c.Request.URL.Query()["languageId"]) > 0 {
 			if err := fromString(c.Request.URL.Query()["languageId"][0], &request.LanguageId); err != nil {
 				server.ErrorLogger(fmt.Sprintf("wrap handler: ListModels (GET) could not convert string to specific type (error: %v)", err))
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
-		} else {
 		}
 		if len(c.Request.URL.Query()["classId"]) > 0 {
 			if err := fromString(c.Request.URL.Query()["classId"][0], &request.ClassId); err != nil {
 				server.ErrorLogger(fmt.Sprintf("wrap handler: ListModels (GET) could not convert string to specific type (error: %v)", err))
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
-		} else {
 		}
 		if len(c.Request.URL.Query()["lineId"]) > 0 {
 			if err := fromString(c.Request.URL.Query()["lineId"][0], &request.LineId); err != nil {
 				server.ErrorLogger(fmt.Sprintf("wrap handler: ListModels (GET) could not convert string to specific type (error: %v)", err))
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
-		} else {
 		}
 		if len(c.Request.URL.Query()["ids"]) > 0 {
 			if err := fromString(c.Request.URL.Query()["ids"][0], &request.Ids); err != nil {
 				server.ErrorLogger(fmt.Sprintf("wrap handler: ListModels (GET) could not convert string to specific type (error: %v)", err))
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
-		} else {
 		}
 		validationErrors, err := server.Validator.ValidateRequest(request)
 		if err != nil {
@@ -1192,7 +1183,6 @@ func (server *VisAdminServer) GetClassesHandler(c *routing.Context) error {
 				server.ErrorLogger(fmt.Sprintf("wrap handler: GetClasses (GET) could not convert string to specific type (error: %v)", err))
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
-		} else {
 		}
 		validationErrors, err := server.Validator.ValidateRequest(request)
 		if err != nil {
@@ -1533,14 +1523,12 @@ func (server *VisAdminServer) ListElementsHandler(c *routing.Context) error {
 				server.ErrorLogger(fmt.Sprintf("wrap handler: ListElements (GET) could not convert string to specific type (error: %v)", err))
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
-		} else {
 		}
 		if len(c.Request.URL.Query()["_perPage"]) > 0 {
 			if err := fromString(c.Request.URL.Query()["_perPage"][0], &request.PerPage); err != nil {
 				server.ErrorLogger(fmt.Sprintf("wrap handler: ListElements (GET) could not convert string to specific type (error: %v)", err))
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
-		} else {
 		}
 		validationErrors, err := server.Validator.ValidateRequest(request)
 		if err != nil {
