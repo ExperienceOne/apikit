@@ -183,10 +183,8 @@ func (server *VisAdminServer) CreateOrUpdateClientHandler(c *routing.Context) er
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
 		} else {
-			{
-				server.ErrorLogger(fmt.Sprintf("wrap handler: CreateOrUpdateClient (PUT) content type of incoming request is bad (want: application/json, got: %s)", contentTypeOfResponse))
-				return newNotSupportedContentType(415, contentTypeOfResponse)
-			}
+			server.ErrorLogger(fmt.Sprintf("wrap handler: CreateOrUpdateClient (PUT) content type of incoming request is bad (want: application/json, got: %s)", contentTypeOfResponse))
+			return newNotSupportedContentType(415, contentTypeOfResponse)
 		}
 		if err := fromString(c.Param("clientId"), &request.ClientId); err != nil {
 			server.ErrorLogger(fmt.Sprintf("wrap handler: CreateOrUpdateClient (PUT) could not convert string to specific type (error: %v)", err))
@@ -467,10 +465,8 @@ func (server *VisAdminServer) CreateOrUpdateViewsSetHandler(c *routing.Context) 
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
 		} else {
-			{
-				server.ErrorLogger(fmt.Sprintf("wrap handler: CreateOrUpdateViewsSet (PUT) content type of incoming request is bad (want: application/json, got: %s)", contentTypeOfResponse))
-				return newNotSupportedContentType(415, contentTypeOfResponse)
-			}
+			server.ErrorLogger(fmt.Sprintf("wrap handler: CreateOrUpdateViewsSet (PUT) content type of incoming request is bad (want: application/json, got: %s)", contentTypeOfResponse))
+			return newNotSupportedContentType(415, contentTypeOfResponse)
 		}
 		if err := fromString(c.Param("clientId"), &request.ClientId); err != nil {
 			server.ErrorLogger(fmt.Sprintf("wrap handler: CreateOrUpdateViewsSet (PUT) could not convert string to specific type (error: %v)", err))
@@ -701,7 +697,6 @@ func (server *VisAdminServer) GetUserInfoHandler(c *routing.Context) error {
 				server.ErrorLogger(fmt.Sprintf("wrap handler: GetUserInfo (GET) could not convert string to specific type (error: %v)", err))
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
-		} else {
 		}
 		validationErrors, err := server.Validator.ValidateRequest(request)
 		if err != nil {
@@ -756,10 +751,8 @@ func (server *VisAdminServer) CreateSessionHandler(c *routing.Context) error {
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
 		} else {
-			{
-				server.ErrorLogger(fmt.Sprintf("wrap handler: CreateSession (POST) content type of incoming request is bad (want: application/json, got: %s)", contentTypeOfResponse))
-				return newNotSupportedContentType(415, contentTypeOfResponse)
-			}
+			server.ErrorLogger(fmt.Sprintf("wrap handler: CreateSession (POST) content type of incoming request is bad (want: application/json, got: %s)", contentTypeOfResponse))
+			return newNotSupportedContentType(415, contentTypeOfResponse)
 		}
 		validationErrors, err := server.Validator.ValidateRequest(request)
 		if err != nil {
@@ -972,10 +965,8 @@ func (server *VisAdminServer) CreateOrUpdateUserHandler(c *routing.Context) erro
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
 		} else {
-			{
-				server.ErrorLogger(fmt.Sprintf("wrap handler: CreateOrUpdateUser (PUT) content type of incoming request is bad (want: application/json, got: %s)", contentTypeOfResponse))
-				return newNotSupportedContentType(415, contentTypeOfResponse)
-			}
+			server.ErrorLogger(fmt.Sprintf("wrap handler: CreateOrUpdateUser (PUT) content type of incoming request is bad (want: application/json, got: %s)", contentTypeOfResponse))
+			return newNotSupportedContentType(415, contentTypeOfResponse)
 		}
 		if err := fromString(c.Param("userId"), &request.UserId); err != nil {
 			server.ErrorLogger(fmt.Sprintf("wrap handler: CreateOrUpdateUser (PUT) could not convert string to specific type (error: %v)", err))
@@ -1056,7 +1047,6 @@ func (server *VisAdminServer) GetBookingsHandler(c *routing.Context) error {
 				server.ErrorLogger(fmt.Sprintf("wrap handler: GetBookings (GET) could not convert string to specific type (error: %v)", err))
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
-		} else {
 		}
 		if len(c.Request.URL.Query()["ids"]) > 0 {
 			if err := fromString(c.Request.URL.Query()["ids"][0], &request.Ids); err != nil {
@@ -1240,14 +1230,12 @@ func (server *VisAdminServer) CodeHandler(c *routing.Context) error {
 					server.ErrorLogger(fmt.Sprintf("wrap handler: Code (POST) could not convert string to specific type (error: %v)", err))
 					return NewHTTPStatusCodeError(http.StatusBadRequest)
 				}
-			} else {
 			}
 			if len(queryInBody["response_mode"]) > 0 {
 				if err := fromString(queryInBody.Get("response_mode"), &request.ResponseMode); err != nil {
 					server.ErrorLogger(fmt.Sprintf("wrap handler: Code (POST) could not convert string to specific type (error: %v)", err))
 					return NewHTTPStatusCodeError(http.StatusBadRequest)
 				}
-			} else {
 			}
 			if len(queryInBody["code"]) > 0 {
 				if err := fromString(queryInBody.Get("code"), &request.Code); err != nil {
@@ -1315,7 +1303,6 @@ func (server *VisAdminServer) DeleteCustomerSessionHandler(c *routing.Context) e
 				server.ErrorLogger(fmt.Sprintf("wrap handler: DeleteCustomerSession (DELETE) could not convert string to specific type (error: %v)", err))
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
-		} else {
 		}
 		validationErrors, err := server.Validator.ValidateRequest(request)
 		if err != nil {
@@ -1384,7 +1371,6 @@ func (server *VisAdminServer) CreateCustomerSessionHandler(c *routing.Context) e
 					server.ErrorLogger(fmt.Sprintf("wrap handler: CreateCustomerSession (POST) could not convert string to specific type (error: %v)", err))
 					return NewHTTPStatusCodeError(http.StatusBadRequest)
 				}
-			} else {
 			}
 		} else {
 			return newNotSupportedContentType(415, contentTypeOfResponse)
@@ -1394,7 +1380,6 @@ func (server *VisAdminServer) CreateCustomerSessionHandler(c *routing.Context) e
 				server.ErrorLogger(fmt.Sprintf("wrap handler: CreateCustomerSession (POST) could not convert string to specific type (error: %v)", err))
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
-		} else {
 		}
 		validationErrors, err := server.Validator.ValidateRequest(request)
 		if err != nil {
@@ -1687,10 +1672,8 @@ func (server *VisAdminServer) GetRentalHandler(c *routing.Context) error {
 				return NewHTTPStatusCodeError(http.StatusBadRequest)
 			}
 		} else {
-			{
-				server.ErrorLogger(fmt.Sprintf("wrap handler: GetRental (GET) content type of incoming request is bad (want: application/json, got: %s)", contentTypeOfResponse))
-				return newNotSupportedContentType(415, contentTypeOfResponse)
-			}
+			server.ErrorLogger(fmt.Sprintf("wrap handler: GetRental (GET) content type of incoming request is bad (want: application/json, got: %s)", contentTypeOfResponse))
+			return newNotSupportedContentType(415, contentTypeOfResponse)
 		}
 		validationErrors, err := server.Validator.ValidateRequest(request)
 		if err != nil {
@@ -1789,7 +1772,6 @@ func (server *VisAdminServer) PostUploadHandler(c *routing.Context) error {
 					server.ErrorLogger(fmt.Sprintf("wrap handler: PostUpload (POST) could not convert string to specific type (error: %v)", err))
 					return NewHTTPStatusCodeError(http.StatusBadRequest)
 				}
-			} else {
 			}
 		} else if contentTypeOfResponse == contentTypeApplicationFormUrlencoded {
 		} else {
