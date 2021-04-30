@@ -3,8 +3,8 @@ package types_test
 import (
 	"testing"
 
-	"github.com/go-openapi/spec"
 	"github.com/ExperienceOne/apikit/generator/types"
+	"github.com/go-openapi/spec"
 )
 
 type ExpectedSchemaType struct {

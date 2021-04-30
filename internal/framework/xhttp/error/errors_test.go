@@ -1,8 +1,8 @@
 package error_test
 
 import (
-	"github.com/stretchr/testify/assert"
 	httperror "github.com/ExperienceOne/apikit/internal/framework/xhttp/error"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
 )

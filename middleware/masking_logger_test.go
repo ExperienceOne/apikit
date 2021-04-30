@@ -12,9 +12,9 @@ import (
 
 	"io"
 
+	"github.com/ExperienceOne/apikit/middleware"
 	"github.com/go-ozzo/ozzo-routing"
 	log "github.com/sirupsen/logrus"
-	"github.com/ExperienceOne/apikit/middleware"
 )
 
 const (

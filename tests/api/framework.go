@@ -542,10 +542,10 @@ func (v *Validator) ValidateRequest(request interface{}) (*ValidationErrorsObjec
 }
 
 const (
-	GitCommit string = "48a22f7b3323607846e023b49bb3110b9312f723"
-	GitBranch string = "fix-auto-generated-code"
+	GitCommit string = "2700aed468b24f84ac841df26fe9330d4b5d54ab"
+	GitBranch string = "feature-server-timeouts-options"
 	GitTag    string = "v1.0.0"
-	BuildTime string = "Di 20. Apr 21:45:12 CEST 2021"
+	BuildTime string = "Fr 30. Apr 20:40:43 CEST 2021"
 )
 
 type VersionInfo struct {
@@ -890,7 +890,15 @@ func (h *PrometheusHandler) HandleRequest(path, method string, status int, durat
 }
 
 type (
+	Timeouts struct {
+		ReadTimeout       time.Duration
+		ReadHeaderTimeout time.Duration
+		WriteTimeout      time.Duration
+		IdleTimeout       time.Duration
+	}
+
 	ServerOpts struct {
+		Timeouts
 		ErrorHandler ErrorHandler
 		Middleware   []Middleware
 		OnStart      func(router *routing.Router)
@@ -909,13 +917,14 @@ type (
 	}
 
 	Server struct {
+		Timeouts
 		ErrorLogger func(v ...interface{})
+		OnStart     func(router *routing.Router)
 		server      *http.Server
+		Router      *routing.Router
 		after       []routing.Handler
 		before      []routing.Handler
 		SwaggerSpec string
-		Router      *routing.Router
-		OnStart     func(router *routing.Router)
 	}
 )
 
@@ -956,6 +965,11 @@ func newServer(opts *ServerOpts) *Server {
 		server.after = after
 		server.before = before
 	}
+
+	server.ReadTimeout = opts.ReadTimeout
+	server.ReadHeaderTimeout = opts.ReadHeaderTimeout
+	server.WriteTimeout = opts.WriteTimeout
+	server.IdleTimeout = opts.IdleTimeout
 
 	return server
 }
@@ -1024,8 +1038,12 @@ func (server *Server) Start(port int, routes []RouteDescription) error {
 	server.Router = router
 
 	httpServer := &http.Server{
-		Addr:    ":" + strconv.Itoa(port),
-		Handler: router,
+		ReadTimeout:       server.ReadTimeout,
+		ReadHeaderTimeout: server.ReadHeaderTimeout,
+		WriteTimeout:      server.WriteTimeout,
+		IdleTimeout:       server.IdleTimeout,
+		Addr:              ":" + strconv.Itoa(port),
+		Handler:           router,
 	}
 	server.server = httpServer
 

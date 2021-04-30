@@ -7,9 +7,9 @@ import (
 
 	"time"
 
+	"github.com/ExperienceOne/apikit/internal/framework/xserver"
 	"github.com/go-ozzo/ozzo-routing"
 	"github.com/pkg/errors"
-	"github.com/ExperienceOne/apikit/internal/framework/xserver"
 )
 
 // Log creates a middleware to log HTTP requests and responses.

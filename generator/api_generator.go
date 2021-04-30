@@ -4,9 +4,9 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/pkg/errors"
 	"github.com/ExperienceOne/apikit/framework"
 	"github.com/ExperienceOne/apikit/generator/openapi"
+	"github.com/pkg/errors"
 )
 
 const (

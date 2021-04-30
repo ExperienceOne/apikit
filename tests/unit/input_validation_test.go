@@ -3,8 +3,8 @@ package unit
 import (
 	"testing"
 
-	"github.com/icrowley/fake"
 	"github.com/ExperienceOne/apikit/tests/api"
+	"github.com/icrowley/fake"
 )
 
 func TestInputValidation(t *testing.T) {

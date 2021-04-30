@@ -47,7 +47,7 @@ const (
 	ContentTypeApplicationFormUrlencoded string = "application/x-www-form-urlencoded"
 	ContentTypeApplicationPDF            string = "application/pdf"
 	ContentTypeApplicationXMLPattern     string = `^application\/(.+)xml$`
-	ContentTypeApplicationOctetStream string = "application/octet-stream"
+	ContentTypeApplicationOctetStream    string = "application/octet-stream"
 )
 
 var ContentTypesForFiles []string = []string{
