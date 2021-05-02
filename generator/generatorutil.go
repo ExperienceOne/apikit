@@ -24,7 +24,7 @@ func walkResponses(operation *Operation, f func(statusCode int, response spec.Re
 
 	type Priority struct {
 		statusCode int
-		value int
+		value      int
 	}
 
 	statusCodesOrder := make([]Priority, 0, len(responses))
@@ -32,7 +32,7 @@ func walkResponses(operation *Operation, f func(statusCode int, response spec.Re
 		// change priority of response types with file content
 		p := Priority{
 			statusCode: statusCode,
-			value: statusCode,
+			value:      statusCode,
 		}
 
 		if responses[statusCode].Schema != nil && responses[statusCode].Schema.Type.Contains("file") && operation.HasProduces(ContentTypesForFiles...) {

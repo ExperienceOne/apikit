@@ -10,16 +10,26 @@ import (
 	"encoding/json"
 	"runtime/debug"
 
+	"github.com/ExperienceOne/apikit/internal/framework/xhttperror"
 	"github.com/go-ozzo/ozzo-routing"
 	"github.com/go-ozzo/ozzo-routing/fault"
-	"github.com/ExperienceOne/apikit/internal/framework/xhttperror"
 )
 
 type (
+	Timeouts struct {
+		// further information is available here
+		// Ref: https://github.com/golang/go/blob/master/src/net/http/server.go
+		ReadTimeout       time.Duration
+		ReadHeaderTimeout time.Duration
+		WriteTimeout      time.Duration
+		IdleTimeout       time.Duration
+	}
+
 	ServerOpts struct {
-		ErrorHandler ErrorHandler
-		Middleware   []Middleware
-		OnStart      func(router *routing.Router)
+		Timeouts
+		ErrorHandler      ErrorHandler
+		Middleware        []Middleware
+		OnStart           func(router *routing.Router)
 	}
 
 	Middleware struct {
@@ -35,13 +45,14 @@ type (
 	}
 
 	Server struct {
-		ErrorLogger func(v ...interface{})
-		server      *http.Server
-		after       []routing.Handler
-		before      []routing.Handler
-		SwaggerSpec string
-		Router      *routing.Router
-		OnStart     func(router *routing.Router)
+		Timeouts
+		ErrorLogger       func(v ...interface{})
+		OnStart           func(router *routing.Router)
+		server            *http.Server
+		Router            *routing.Router
+		after             []routing.Handler
+		before            []routing.Handler
+		SwaggerSpec       string
 	}
 )
 
@@ -85,6 +96,11 @@ func NewServer(opts *ServerOpts) *Server {
 		server.after = after
 		server.before = before
 	}
+
+	server.ReadTimeout = opts.ReadTimeout
+	server.ReadHeaderTimeout = opts.ReadHeaderTimeout
+	server.WriteTimeout = opts.WriteTimeout
+	server.IdleTimeout = opts.IdleTimeout
 
 	return server
 }
@@ -153,8 +169,12 @@ func (server *Server) Start(port int, routes []RouteDescription) error {
 	server.Router = router
 
 	httpServer := &http.Server{
-		Addr:    ":" + strconv.Itoa(port),
-		Handler: router,
+		ReadTimeout:       server.ReadTimeout,
+		ReadHeaderTimeout: server.ReadHeaderTimeout,
+		WriteTimeout:      server.WriteTimeout,
+		IdleTimeout:       server.IdleTimeout,
+		Addr:              ":" + strconv.Itoa(port),
+		Handler:           router,
 	}
 	server.server = httpServer
 

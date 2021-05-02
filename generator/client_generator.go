@@ -342,7 +342,7 @@ func (gen *goClientGenerator) generateOperation(operation *Operation, nameOfClie
 
 		lastFileResponseIndex := -1
 		walkResponses(operation, func(statusCode int, response spec.Response) {
-			if  response.Schema != nil && response.Schema.Type.Contains("file") && operation.HasProduces(ContentTypesForFiles...) {
+			if response.Schema != nil && response.Schema.Type.Contains("file") && operation.HasProduces(ContentTypesForFiles...) {
 				lastFileResponseIndex++
 			}
 		})
@@ -467,7 +467,6 @@ func (gen *goClientGenerator) generateResponse(operation *Operation, statusCode 
 
 			hasContentType = true
 		}
-
 
 		if !hasContentType {
 			stmts.If(jen.Id("contentTypeOfResponse").Op("==").Lit("")).BlockFunc(func(stmts *jen.Group) {

@@ -3,9 +3,9 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"github.com/ExperienceOne/apikit/internal/framework/xserver"
 	"github.com/go-ozzo/ozzo-routing"
 	"github.com/gofrs/uuid"
-	"github.com/ExperienceOne/apikit/internal/framework/xserver"
 	"net/http"
 	"sync/atomic"
 )
