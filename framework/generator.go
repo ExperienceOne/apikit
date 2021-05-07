@@ -2,6 +2,8 @@ package framework
 
 import (
 	"bytes"
+	"github.com/ExperienceOne/apikit/generator/stringutil"
+	"github.com/ExperienceOne/apikit/internal/framework/version"
 	"go/ast"
 	"go/format"
 	"go/parser"
@@ -9,8 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/ExperienceOne/apikit/generator/stringutil"
 
 	"github.com/fatih/astrewrite"
 	"github.com/pkg/errors"
@@ -26,21 +26,33 @@ type Generator struct {
 	files *token.FileSet
 }
 
+type SourceCodeFile struct {
+	kind string
+	path string
+}
+
 // Creates new framework source from directory
 func FromDirectory(dir string, excludedPackages []string) (*Generator, error) {
 
-	var files []string
+	var files []SourceCodeFile
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 
+		sourceCodeFile := SourceCodeFile{}
 		if len(excludedPackages) > 0 && containsPath(excludedPackages, path) {
 			return nil
+		}
+
+		if strings.Contains(path, "version") {
+			sourceCodeFile.kind = "version"
 		}
 
 		if info.IsDir() || strings.Contains(path, "_test.go") {
 			return nil
 		}
 
-		files = append(files, path)
+		sourceCodeFile.path = path
+
+		files = append(files, sourceCodeFile)
 		return nil
 	})
 
@@ -55,9 +67,35 @@ func FromDirectory(dir string, excludedPackages []string) (*Generator, error) {
 	}
 
 	for _, file := range files {
-		src, err := parser.ParseFile(fileSet, file, nil, 0)
+
+		src, err := parser.ParseFile(fileSet, file.path, nil, 0)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to parse file '%s'", file)
+			return nil, errors.Wrapf(err, "failed to parse file '%s'", file.path)
+		}
+
+		if file.kind == "version" {
+			rewriteFunc := func(n ast.Node) (ast.Node, bool) {
+				x, ok := n.(*ast.ValueSpec)
+				if !ok {
+					return n, true
+				}
+				for _, id := range x.Names {
+					basicLit := id.Obj.Decl.(*ast.ValueSpec).Values[0].(*ast.BasicLit)
+					switch id.Name {
+					case "GitCommit":
+						basicLit.Value = "\"" + version.GitCommit + "\""
+					case "GitBranch":
+						basicLit.Value = "\"" + version.GitBranch + "\""
+					case "GitTag":
+						basicLit.Value = "\"" + version.GitTag + "\""
+					case "BuildTime":
+						basicLit.Value = "\"" + version.BuildTime + "\""
+					}
+				}
+				return x, true
+			}
+
+			src = astrewrite.Walk(src, rewriteFunc).(*ast.File)
 		}
 
 		missingImports := make([]*ast.ImportSpec, 0)
@@ -83,7 +121,7 @@ func FromDirectory(dir string, excludedPackages []string) (*Generator, error) {
 		for _, importSpecs := range astutil.Imports(fileSet, src) {
 			for _, importSpec := range importSpecs {
 				if ok := astutil.DeleteImport(fileSet, src, strings.Replace(importSpec.Path.Value, "\"", "", -1)); !ok {
-					return nil, errors.Errorf("failed to delete import '%s' of file '%s'", importSpec.Path.Value, file)
+					return nil, errors.Errorf("failed to delete import '%s' of file '%s'", importSpec.Path.Value, file.path)
 				}
 			}
 		}
