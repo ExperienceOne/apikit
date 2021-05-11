@@ -541,11 +541,11 @@ func (v *Validator) ValidateRequest(request interface{}) (*ValidationErrorsObjec
 	return nil, nil
 }
 
-const (
-	GitCommit string = "2700aed468b24f84ac841df26fe9330d4b5d54ab"
-	GitBranch string = "feature-server-timeouts-options"
+var (
+	GitCommit string = "2001f7d07ca2d0331fb6d43d2801d8f3d969a187"
+	GitBranch string = "feature/git_ldflags"
 	GitTag    string = "v1.0.0"
-	BuildTime string = "Fr 30. Apr 20:40:43 CEST 2021"
+	BuildTime string = "Mo 10. Mai 20:44:44 CEST 2021"
 )
 
 type VersionInfo struct {

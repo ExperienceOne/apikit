@@ -27,9 +27,9 @@ type (
 
 	ServerOpts struct {
 		Timeouts
-		ErrorHandler      ErrorHandler
-		Middleware        []Middleware
-		OnStart           func(router *routing.Router)
+		ErrorHandler ErrorHandler
+		Middleware   []Middleware
+		OnStart      func(router *routing.Router)
 	}
 
 	Middleware struct {
@@ -46,13 +46,13 @@ type (
 
 	Server struct {
 		Timeouts
-		ErrorLogger       func(v ...interface{})
-		OnStart           func(router *routing.Router)
-		server            *http.Server
-		Router            *routing.Router
-		after             []routing.Handler
-		before            []routing.Handler
-		SwaggerSpec       string
+		ErrorLogger func(v ...interface{})
+		OnStart     func(router *routing.Router)
+		server      *http.Server
+		Router      *routing.Router
+		after       []routing.Handler
+		before      []routing.Handler
+		SwaggerSpec string
 	}
 )
 

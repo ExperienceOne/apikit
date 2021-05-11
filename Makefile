@@ -1,6 +1,26 @@
 .PHONY: all
 all: test install ## build APIKit and run tests
 
+PACKAGE_ROOT = github.com/ExperienceOne/apikit
+PACKAGE_VERSION = ${PACKAGE_ROOT}/internal/framework/version
+
+GIT_COMMIT=""
+GIT_BRANCH=""
+GIT_TAG=""
+BUILD_TIME=$(shell date)
+
+ifneq ($(wildcard .git),)
+    $(info use git meta data)
+	GIT_COMMIT=$(shell git rev-parse HEAD)
+	GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null)
+	GIT_TAG=$(shell git describe --abbrev=0 --tags)
+	BUILD_TIME=$(shell date)
+else
+    $(error no git meta data inside of this dir)
+endif
+
+BUILD_INFO_FLAGS = -X '${PACKAGE_VERSION}.GitCommit=${GIT_COMMIT}' -X '${PACKAGE_VERSION}.GitBranch=${GIT_BRANCH}' -X '${PACKAGE_VERSION}.GitTag=${GIT_TAG}' -X '${PACKAGE_VERSION}.BuildTime=${BUILD_TIME}'
+
 ALL_PACKAGES=$(shell go list ./... | grep -v "vendor")
 GOPATH = $(shell printenv GOPATH)
 ifeq ($(GOPATH), )
@@ -9,16 +29,14 @@ endif
 
 .PHONY: framework
 framework: ## build framework components
-	scripts/version.sh
-	go install -v ./cmd/fpacker
+	go install -ldflags "${BUILD_INFO_FLAGS}" -v ./cmd/fpacker
 	$(GOPATH)/bin/fpacker -src ./internal/framework/ -dest ./framework/framework_code.go
 	$(GOPATH)/bin/fpacker -src ./internal/framework/ -dest ./framework/framework_code_client.go -exclude=xserver,validation,middleware,unmarshal -kind=client
 	$(GOPATH)/bin/fpacker -src ./internal/framework/ -dest ./framework/framework_code_server.go -exclude=xclient,roundtripper,hooks -kind=server
 
 testgenerator: framework
-	go build ./cmd/apikit
+	go build -ldflags "${BUILD_INFO_FLAGS}" -o apikit  ./cmd/apikit/main.go
 	mv ./apikit $(GOPATH)/bin/test_apikit
-	git checkout @ -- ./internal/framework/version/version.go
 	git checkout @ -- ./framework/framework_code.go
 	git checkout @ -- ./framework/framework_code_client.go
 	git checkout @ -- ./framework/framework_code_server.go
@@ -35,11 +53,8 @@ lint:				## runs linters for all packages except 'gen' (requires golangci-lint)
 
 .PHONY: install
 install: framework   ## builds and installs the binaries of the APIKit in $GOPATH/bin
-	scripts/version.sh
-	cd ./cmd/apikit && \
-	go build -o apikit
-	mv ./cmd/apikit/apikit $(GOPATH)/bin/apikit
-	git checkout @ -- ./internal/framework/version/version.go
+	go build -ldflags "${BUILD_INFO_FLAGS}" -o apikit  ./cmd/apikit/main.go
+	mv apikit $(GOPATH)/bin/apikit
 
 .PHONY: help
 help:	            ## prints help for most of the make targets
