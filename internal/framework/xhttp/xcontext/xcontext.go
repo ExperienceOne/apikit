@@ -49,6 +49,8 @@ func (c *httpContext) GetHTTPRequestHeaders() (http.Header, bool) {
 	return header, ok
 }
 
+var ErrCollisionMap error = errors.New("header from context overwrites header in request object")
+
 // SetRequestHeadersFromContext iterates over headers in context and add adds all values to the request headers map
 func SetRequestHeadersFromContext(httpContext HttpContext, header http.Header) error {
 
@@ -64,7 +66,7 @@ func SetRequestHeadersFromContext(httpContext HttpContext, header http.Header) e
 	// don't use Header().Set() or Header().Add(): https://github.com/golang/go/issues/5022
 	for key, values := range headersFromContext {
 		if _, exists := header[key]; exists {
-			return errors.New("header from context overwrites header in request object")
+			return ErrCollisionMap
 		}
 
 		header[key] = values

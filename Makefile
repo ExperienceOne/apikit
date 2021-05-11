@@ -45,11 +45,13 @@ testgenerator: framework
 test: testgenerator ## run tests
 	$(GOPATH)/bin/test_apikit --debug generate ./tests/data/swagger.yaml  ./tests/api/ api
 	$(GOPATH)/bin/test_apikit --debug generate --mocked ./tests/data/swagger.yaml  ./tests/mock/ api
+	$(GOPATH)/bin/test_apikit --debug generate ./example/api.yaml  ./example todo
+	$(GOPATH)/bin/test_apikit --debug generate ./example/api.yaml  ./example todo
 	for package in $(ALL_PACKAGES); do ENVIRONMENT=test go test $$package; if [ $$? -ne "0" ]; then echo "Test failed!"; exit 1; fi; done
 
 .PHONY: lint
-lint:				## runs linters for all packages except 'gen' (requires golangci-lint)
-	golangci-lint run --skip-dirs '(example|tests)'
+lint:
+	docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v1.40.0 golangci-lint run -v --max-issues-per-linter=0 --max-same-issues=0
 
 .PHONY: install
 install: framework   ## builds and installs the binaries of the APIKit in $GOPATH/bin

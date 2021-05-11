@@ -50,7 +50,7 @@ See the [compliance list](Compliance.md) for a detailed list of supported OpenAP
 
 ## Requirements
 
-- Golang 1.11 or higher
+- Golang 1.13 or higher
 - make (if you want to use the Makefile)
 
 ## Installation

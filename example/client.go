@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -43,24 +42,21 @@ func (client *todoServiceClient) DeleteTodos(request *DeleteTodosRequest) (Delet
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 204 {
+	defer httpResponse.Body.Close()
+	if httpResponse.StatusCode == http.StatusNoContent {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
-			httpResponse.Body.Close()
 			response := new(DeleteTodos204Response)
 			return response, nil
 		}
-		httpResponse.Body.Close()
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		httpResponse.Body.Close()
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	httpResponse.Body.Close()
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *todoServiceClient) ListTodos(request *ListTodosRequest) (ListTodosResponse, error) {
@@ -87,32 +83,28 @@ func (client *todoServiceClient) ListTodos(request *ListTodosRequest) (ListTodos
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	defer httpResponse.Body.Close()
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(ListTodos200Response)
 			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
-			httpResponse.Body.Close()
 			if decodeErr != nil {
 				return nil, decodeErr
 			}
 			return response, nil
 		} else if contentTypeOfResponse == "" {
-			httpResponse.Body.Close()
 			response := new(ListTodos200Response)
 			return response, nil
 		}
-		httpResponse.Body.Close()
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		httpResponse.Body.Close()
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	httpResponse.Body.Close()
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *todoServiceClient) PostTodo(request *PostTodoRequest) (PostTodoResponse, error) {
@@ -145,32 +137,28 @@ func (client *todoServiceClient) PostTodo(request *PostTodoRequest) (PostTodoRes
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 201 {
+	defer httpResponse.Body.Close()
+	if httpResponse.StatusCode == http.StatusCreated {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(PostTodo201Response)
 			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
-			httpResponse.Body.Close()
 			if decodeErr != nil {
 				return nil, decodeErr
 			}
 			return response, nil
 		} else if contentTypeOfResponse == "" {
-			httpResponse.Body.Close()
 			response := new(PostTodo201Response)
 			return response, nil
 		}
-		httpResponse.Body.Close()
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		httpResponse.Body.Close()
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	httpResponse.Body.Close()
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *todoServiceClient) DeleteTodo(request *DeleteTodoRequest) (DeleteTodoResponse, error) {
@@ -198,35 +186,30 @@ func (client *todoServiceClient) DeleteTodo(request *DeleteTodoRequest) (DeleteT
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 204 {
+	defer httpResponse.Body.Close()
+	if httpResponse.StatusCode == http.StatusNoContent {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
-			httpResponse.Body.Close()
 			response := new(DeleteTodo204Response)
 			return response, nil
 		}
-		httpResponse.Body.Close()
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 404 {
+	if httpResponse.StatusCode == http.StatusNotFound {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
-			httpResponse.Body.Close()
 			response := new(DeleteTodo404Response)
 			return response, nil
 		}
-		httpResponse.Body.Close()
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		httpResponse.Body.Close()
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	httpResponse.Body.Close()
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *todoServiceClient) GetTodo(request *GetTodoRequest) (GetTodoResponse, error) {
@@ -254,43 +237,37 @@ func (client *todoServiceClient) GetTodo(request *GetTodoRequest) (GetTodoRespon
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	defer httpResponse.Body.Close()
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(GetTodo200Response)
 			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
-			httpResponse.Body.Close()
 			if decodeErr != nil {
 				return nil, decodeErr
 			}
 			return response, nil
 		} else if contentTypeOfResponse == "" {
-			httpResponse.Body.Close()
 			response := new(GetTodo200Response)
 			return response, nil
 		}
-		httpResponse.Body.Close()
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 404 {
+	if httpResponse.StatusCode == http.StatusNotFound {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
-			httpResponse.Body.Close()
 			response := new(GetTodo404Response)
 			return response, nil
 		}
-		httpResponse.Body.Close()
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		httpResponse.Body.Close()
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	httpResponse.Body.Close()
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *todoServiceClient) PatchTodo(request *PatchTodoRequest) (PatchTodoResponse, error) {
@@ -324,43 +301,37 @@ func (client *todoServiceClient) PatchTodo(request *PatchTodoRequest) (PatchTodo
 	if err != nil {
 		return nil, err
 	}
-	if httpResponse.StatusCode == 200 {
+	defer httpResponse.Body.Close()
+	if httpResponse.StatusCode == http.StatusOK {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
 			response := new(PatchTodo200Response)
 			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
-			httpResponse.Body.Close()
 			if decodeErr != nil {
 				return nil, decodeErr
 			}
 			return response, nil
 		} else if contentTypeOfResponse == "" {
-			httpResponse.Body.Close()
 			response := new(PatchTodo200Response)
 			return response, nil
 		}
-		httpResponse.Body.Close()
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
-	if httpResponse.StatusCode == 404 {
+	if httpResponse.StatusCode == http.StatusNotFound {
 		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
 		if contentTypeOfResponse == "" {
-			httpResponse.Body.Close()
 			response := new(PatchTodo404Response)
 			return response, nil
 		}
-		httpResponse.Body.Close()
 		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
 	}
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		httpResponse.Body.Close()
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	httpResponse.Body.Close()
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 type TodoServiceClient interface {

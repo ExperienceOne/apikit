@@ -101,11 +101,13 @@ func GetUserInfo(ctx context.Context, request *GetUserInfoRequest) GetUserInfoRe
 	}
 }
 
+var ErrPopulatingContext error = errors.New("error populating context")
+
 func IsContextPopluated(ctx context.Context) error {
 	raw := ctx.Value("dummy")
 	value, ok := raw.(string)
 	if !ok {
-		return errors.New("error populating context")
+		return ErrPopulatingContext
 	}
 
 	if value != "dummy" {
@@ -287,7 +289,7 @@ func GetRental(ctx context.Context, request *GetRentalRequest) GetRentalResponse
 	return nil
 }
 
-var triggerPanic string = "triggerPanic"
+var errTriggerPanic error = errors.New("triggerPanic")
 
 func RouterPanicMiddleware() routing.Handler {
 	return func(c *routing.Context) error {
@@ -304,14 +306,14 @@ func RouterPanicMiddleware() routing.Handler {
 					}
 
 					if err != nil {
-						if err.Error() != triggerPanic {
+						if !errors.Is(err, errTriggerPanic) {
 							log.Print("error not a panic for /api/user")
 						}
 					}
 				}
 			}()
 
-			panic(errors.New(triggerPanic))
+			panic(errTriggerPanic)
 		}
 		return c.Next()
 	}
