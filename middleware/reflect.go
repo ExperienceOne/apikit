@@ -12,7 +12,7 @@ func ClearFieldByType(obj interface{}, t reflect.Type) error {
 
 	value := reflect.ValueOf(obj)
 	if value.Kind() != reflect.Ptr {
-		return fmt.Errorf("non-pointer %v", value.Type())
+		return &ErrValueIsNotPointer{value: value}
 	}
 
 	clearValueFieldByType(value, t)
@@ -108,12 +108,12 @@ func clearValueFieldByType(value reflect.Value, t reflect.Type) {
 func ClearFieldByName(obj interface{}, fieldName string) error {
 
 	if fieldName == "" {
-		return errors.New("field name is required")
+		return ErrFieldNameIsRequired
 	}
 
 	value := reflect.ValueOf(obj)
 	if value.Kind() != reflect.Ptr {
-		return fmt.Errorf("non-pointer %v", value.Type())
+		return &ErrValueIsNotPointer{value: value}
 	}
 
 	clearValueFieldByName(value, fieldName)
@@ -240,4 +240,14 @@ func deepCopy(original, copy reflect.Value) {
 	default:
 		copy.Set(original)
 	}
+}
+
+var ErrFieldNameIsRequired = errors.New("field name is required")
+
+type ErrValueIsNotPointer struct {
+	value reflect.Value
+}
+
+func (err *ErrValueIsNotPointer) Error() string {
+	return fmt.Sprintf("value is not a pointer: '%s'", err.value.Kind().String())
 }

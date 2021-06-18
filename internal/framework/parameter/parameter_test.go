@@ -1,7 +1,6 @@
 package parameter_test
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -53,7 +52,7 @@ func TestToString(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			result := parameter.ToString(test.input)
 			if result != test.expected {
-				t.Fatal(fmt.Sprintf("expected '%s', got '%s'", test.expected, result))
+				t.Fatalf("expected '%s', got '%s'", test.expected, result)
 			}
 		})
 	}
@@ -115,7 +114,7 @@ func TestFromString(t *testing.T) {
 			}
 			value := reflect.ValueOf(variable).Elem().Interface()
 			if !reflect.DeepEqual(value, test.expected) {
-				t.Fatal(fmt.Sprintf("expected '%v', got '%v'", test.expected, value))
+				t.Fatalf("expected '%v', got '%v'", test.expected, value)
 			}
 		})
 	}
@@ -137,11 +136,11 @@ func TestFromStringFailed(t *testing.T) {
 			variable := reflect.New(test.typ).Interface()
 			err := parameter.FromString(test.input, variable)
 			if err == nil {
-				t.Fatal("error is nil")
+				t.Fatal("err is nil")
 			}
 
-			if err.Error() != test.expected.Error() {
-				t.Fatal(fmt.Sprintf("expected '%v', got '%v'", test.expected.Error(), err.Error()))
+			if err == test.expected {
+				t.Fatalf("expected '%v', got '%v'", test.expected, err)
 			}
 		})
 	}
@@ -151,12 +150,11 @@ func TestFromStringIsNotAPointer(t *testing.T) {
 
 	err := parameter.FromString("1", nil)
 	if err == nil {
-		t.Fatal("error is nil")
+		t.Fatal("err is nil")
 	}
 
-	expectedErrorMessage := "param isn't a pointer"
-	if err.Error() != expectedErrorMessage {
-		t.Fatal(fmt.Sprintf("expected '%v', got '%v'", expectedErrorMessage, err.Error()))
+	if !errors.Is(err, parameter.ErrParamIsNotPointer) {
+		t.Fatalf("expected '%v', got '%v'", parameter.ErrParamIsNotPointer, err)
 	}
 }
 
@@ -167,9 +165,8 @@ func TestFormStringNil(t *testing.T) {
 		t.Fatal("error is nil")
 	}
 
-	expectedErrorMessage := "param is nil"
-	if err.Error() != expectedErrorMessage {
-		t.Fatal(fmt.Sprintf("expected '%v', got '%v'", expectedErrorMessage, err.Error()))
+	if !errors.Is(err, parameter.ErrParamIsNil) {
+		t.Fatalf("expected '%v', got '%v'", parameter.ErrParamIsNil, err)
 	}
 }
 
@@ -197,10 +194,10 @@ func TestFromStringOverflow(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			err := parameter.FromString(test.raw, test.value)
 			if err == nil {
-				t.Fatal("error err is nil")
+				t.Fatal("err is nil")
 			}
-			if !strings.Contains(err.Error(), "value too big:") {
-				t.Error(fmt.Sprintf("error didn't triggered a overflow (message: %s)", err.Error()))
+			if !strings.Contains(err.Error(), "type overflow:") {
+				t.Errorf("didn't triggered a overflow (message: %v)", err)
 			}
 		})
 	}

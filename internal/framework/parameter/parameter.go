@@ -3,13 +3,12 @@ package parameter
 import (
 	"fmt"
 	"reflect"
+	"runtime/debug"
 	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
 )
-
-var EmptyString = errors.New("string is empty")
 
 // primitiveToString converts a given primitive value into an string
 func primitiveToString(param reflect.Value) string {
@@ -73,7 +72,7 @@ func ToString(param interface{}) string {
 func stringToPrimitive(s string, param reflect.Value) error {
 
 	if param.Kind() != reflect.Ptr {
-		return fmt.Errorf("value isn't a pointer reference: %s", param.Kind().String())
+		return &ErrValueIsNotPointer{value: param}
 	}
 
 	var err error
@@ -88,7 +87,7 @@ func stringToPrimitive(s string, param reflect.Value) error {
 				return err
 			}
 			if elm.OverflowInt(val) {
-				return fmt.Errorf("int value too big: %s", s)
+				return &ErrTypeValueOverflow{value: s}
 			}
 		}
 		elm.SetInt(val)
@@ -101,7 +100,7 @@ func stringToPrimitive(s string, param reflect.Value) error {
 				return err
 			}
 			if elm.OverflowUint(val) {
-				return fmt.Errorf("unit value too big: %s", s)
+				return &ErrTypeValueOverflow{value: s}
 			}
 		}
 		elm.SetUint(val)
@@ -140,7 +139,7 @@ func stringToPrimitive(s string, param reflect.Value) error {
 		elm.SetBool(val)
 
 	default:
-		return fmt.Errorf("unsupported primitive type: '%s'", param.Kind().String())
+		return &ErrUnsupportedPrimitiveType{value: param}
 	}
 	return nil
 }
@@ -169,18 +168,19 @@ func FromString(s string, param interface{}) (err error) {
 
 	defer func() {
 		if v := recover(); v != nil {
-			err = fmt.Errorf("queryparam:FromString has panicked (%v)", v)
+			stack := debug.Stack()
+			err = &RecoverError{Err: v, Stack: stack}
 		}
 	}()
 
 	for {
 		paramReflected := reflect.ValueOf(param)
 		if paramReflected.Kind() != reflect.Ptr {
-			return errors.New("param isn't a pointer")
+			return ErrParamIsNotPointer
 		}
 
 		if paramReflected.IsNil() {
-			return errors.New("param is nil")
+			return ErrParamIsNil
 		}
 
 		kindOfElement := paramReflected.Elem().Kind()
@@ -194,7 +194,7 @@ func FromString(s string, param interface{}) (err error) {
 			if kindOfElement == reflect.Slice {
 				err = stringToSlice(s, paramReflected)
 			} else if kindOfElement == reflect.Array || kindOfElement == reflect.Map {
-				err = fmt.Errorf("unsupported kind: %s", kindOfElement.String())
+				err = &ErrUnsupportedKind{kind: kindOfElement}
 			} else {
 				err = stringToPrimitive(s, paramReflected)
 			}
@@ -204,3 +204,45 @@ func FromString(s string, param interface{}) (err error) {
 
 	return
 }
+
+var ErrParamIsNotPointer error = errors.New("param isn't a pointer")
+var ErrParamIsNil error = errors.New("param is nil")
+
+type ErrUnsupportedKind struct {
+	kind reflect.Kind
+}
+
+func (err *ErrUnsupportedKind) Error() string {
+	return fmt.Sprintf("unsupported kind: '%s'", err.kind.String())
+}
+
+type ErrValueIsNotPointer struct {
+	value reflect.Value
+}
+
+func (err *ErrValueIsNotPointer) Error() string {
+	return fmt.Sprintf("value is not a pointer: '%s'", err.value.Kind().String())
+}
+
+type ErrTypeValueOverflow struct {
+	value string
+}
+
+func (err *ErrTypeValueOverflow) Error() string {
+	return fmt.Sprintf("type overflow: '%s'", err.value)
+}
+
+type ErrUnsupportedPrimitiveType struct {
+	value reflect.Value
+}
+
+func (err *ErrUnsupportedPrimitiveType) Error() string {
+	return fmt.Sprintf("unsupported primitive type: '%s'", err.value.Kind().String())
+}
+
+type RecoverError struct {
+	Err   interface{}
+	Stack []byte
+}
+
+func (e *RecoverError) Error() string { return fmt.Sprintf("fromString panicked: %v", e.Err) }

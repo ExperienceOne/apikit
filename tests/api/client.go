@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -83,9 +82,9 @@ func (client *visAdminClient) GetClients(request *GetClientsRequest) (GetClients
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) DeleteClient(request *DeleteClientRequest) (DeleteClientResponse, error) {
@@ -144,9 +143,9 @@ func (client *visAdminClient) DeleteClient(request *DeleteClientRequest) (Delete
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) GetClient(request *GetClientRequest) (GetClientResponse, error) {
@@ -212,9 +211,9 @@ func (client *visAdminClient) GetClient(request *GetClientRequest) (GetClientRes
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) CreateOrUpdateClient(request *CreateOrUpdateClientRequest) (CreateOrUpdateClientResponse, error) {
@@ -297,9 +296,9 @@ func (client *visAdminClient) CreateOrUpdateClient(request *CreateOrUpdateClient
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) GetViewsSets(request *GetViewsSetsRequest) (GetViewsSetsResponse, error) {
@@ -356,9 +355,9 @@ func (client *visAdminClient) GetViewsSets(request *GetViewsSetsRequest) (GetVie
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) DeleteViewsSet(request *DeleteViewsSetRequest) (DeleteViewsSetResponse, error) {
@@ -418,9 +417,9 @@ func (client *visAdminClient) DeleteViewsSet(request *DeleteViewsSetRequest) (De
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) GetViewsSet(request *GetViewsSetRequest) (GetViewsSetResponse, error) {
@@ -493,9 +492,9 @@ func (client *visAdminClient) GetViewsSet(request *GetViewsSetRequest) (GetViews
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 // Make this viewset the active one for the client.
@@ -556,9 +555,9 @@ func (client *visAdminClient) ActivateViewsSet(request *ActivateViewsSetRequest)
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) CreateOrUpdateViewsSet(request *CreateOrUpdateViewsSetRequest) (CreateOrUpdateViewsSetResponse, error) {
@@ -642,9 +641,9 @@ func (client *visAdminClient) CreateOrUpdateViewsSet(request *CreateOrUpdateView
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) ShowVehicleInView(request *ShowVehicleInViewRequest) (ShowVehicleInViewResponse, error) {
@@ -707,9 +706,9 @@ func (client *visAdminClient) ShowVehicleInView(request *ShowVehicleInViewReques
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 /*
@@ -769,9 +768,9 @@ func (client *visAdminClient) GetPermissions(request *GetPermissionsRequest) (Ge
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) DestroySession(request *DestroySessionRequest) (DestroySessionResponse, error) {
@@ -820,9 +819,9 @@ func (client *visAdminClient) DestroySession(request *DestroySessionRequest) (De
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) GetUserInfo(request *GetUserInfoRequest) (GetUserInfoResponse, error) {
@@ -897,9 +896,9 @@ func (client *visAdminClient) GetUserInfo(request *GetUserInfoRequest) (GetUserI
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) CreateSession(request *CreateSessionRequest) (CreateSessionResponse, error) {
@@ -972,9 +971,9 @@ func (client *visAdminClient) CreateSession(request *CreateSessionRequest) (Crea
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) GetUsers(request *GetUsersRequest) (GetUsersResponse, error) {
@@ -1030,9 +1029,9 @@ func (client *visAdminClient) GetUsers(request *GetUsersRequest) (GetUsersRespon
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) DeleteUser(request *DeleteUserRequest) (DeleteUserResponse, error) {
@@ -1099,9 +1098,9 @@ func (client *visAdminClient) DeleteUser(request *DeleteUserRequest) (DeleteUser
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) GetUser(request *GetUserRequest) (GetUserResponse, error) {
@@ -1175,9 +1174,9 @@ func (client *visAdminClient) GetUser(request *GetUserRequest) (GetUserResponse,
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) CreateOrUpdateUser(request *CreateOrUpdateUserRequest) (CreateOrUpdateUserResponse, error) {
@@ -1268,9 +1267,9 @@ func (client *visAdminClient) CreateOrUpdateUser(request *CreateOrUpdateUserRequ
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 // Get booking of session owner
@@ -1370,9 +1369,9 @@ func (client *visAdminClient) GetBookings(request *GetBookingsRequest) (GetBooki
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) ListModels(request *ListModelsRequest) (ListModelsResponse, error) {
@@ -1439,9 +1438,9 @@ func (client *visAdminClient) ListModels(request *ListModelsRequest) (ListModels
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) GetClasses(request *GetClassesRequest) (GetClassesResponse, error) {
@@ -1512,9 +1511,9 @@ func (client *visAdminClient) GetClasses(request *GetClassesRequest) (GetClasses
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) Code(request *CodeRequest) (CodeResponse, error) {
@@ -1613,9 +1612,9 @@ func (client *visAdminClient) Code(request *CodeRequest) (CodeResponse, error) {
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 /*
@@ -1679,9 +1678,9 @@ func (client *visAdminClient) DeleteCustomerSession(request *DeleteCustomerSessi
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 /*
@@ -1784,9 +1783,9 @@ func (client *visAdminClient) CreateCustomerSession(request *CreateCustomerSessi
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 /*
@@ -1835,9 +1834,9 @@ func (client *visAdminClient) DownloadNestedFile(request *DownloadNestedFileRequ
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 // Retrieve a image
@@ -1891,9 +1890,9 @@ func (client *visAdminClient) DownloadImage(request *DownloadImageRequest) (Down
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) ListElements(request *ListElementsRequest) (ListElementsResponse, error) {
@@ -1965,9 +1964,9 @@ func (client *visAdminClient) ListElements(request *ListElementsRequest) (ListEl
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) FileUpload(request *FileUploadRequest) (FileUploadResponse, error) {
@@ -2032,9 +2031,9 @@ func (client *visAdminClient) FileUpload(request *FileUploadRequest) (FileUpload
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 // Retrieve a file
@@ -2119,9 +2118,9 @@ func (client *visAdminClient) GenericFileDownload(request *GenericFileDownloadRe
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 // get rental
@@ -2183,9 +2182,9 @@ func (client *visAdminClient) GetRental(request *GetRentalRequest) (GetRentalRes
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) GetShoes(request *GetShoesRequest) (GetShoesResponse, error) {
@@ -2231,9 +2230,9 @@ func (client *visAdminClient) GetShoes(request *GetShoesRequest) (GetShoesRespon
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 func (client *visAdminClient) PostUpload(request *PostUploadRequest) (PostUploadResponse, error) {
@@ -2311,9 +2310,9 @@ func (client *visAdminClient) PostUpload(request *PostUploadRequest) (PostUpload
 
 	if client.hooks.OnUnknownResponseCode != nil {
 		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
-		return nil, errors.New(message)
+		return nil, newErrOnUnknownResponseCode(message)
 	}
-	return nil, newUnknownResponseError(httpResponse.StatusCode)
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
 }
 
 type VisAdminClient interface {

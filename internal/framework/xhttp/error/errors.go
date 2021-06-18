@@ -7,27 +7,51 @@ import (
 )
 
 func NewNotSupportedContentType(statusCode int, message string) error {
-	return &notSupportedContentType{
+	return &NotSupportedContentType{
 		message:    message,
 		statusCode: statusCode,
 	}
 }
 
-type notSupportedContentType struct {
+type NotSupportedContentType struct {
 	message    string
 	statusCode int
 }
 
-func (e *notSupportedContentType) Error() string {
+func (e *NotSupportedContentType) Error() string {
 	return fmt.Sprintf("error unsupported media type (%s)", e.message)
 }
 
-func (e *notSupportedContentType) StatusCode() int {
+func (e *NotSupportedContentType) StatusCode() int {
 	return e.statusCode
 }
 
 var NewRequestObjectIsNilError = errors.New("request object is nil")
 
-func NewUnknownResponseError(code int) error {
-	return fmt.Errorf("unknown response status code '%d'", code)
+func NewErrUnknownResponse(code int) *ErrUnknownResponse {
+	return &ErrUnknownResponse{
+		code: code,
+	}
+}
+
+type ErrUnknownResponse struct {
+	code int
+}
+
+func (err *ErrUnknownResponse) Error() string {
+	return fmt.Sprintf("unknown response status code '%d'", err.code)
+}
+
+func NewErrOnUnknownResponseCode(message string) *ErrOnUnknownResponseCode {
+	return &ErrOnUnknownResponseCode{
+		Message: message,
+	}
+}
+
+type ErrOnUnknownResponseCode struct {
+	Message string
+}
+
+func (err *ErrOnUnknownResponseCode) Error() string {
+	return fmt.Sprintf(err.Message)
 }

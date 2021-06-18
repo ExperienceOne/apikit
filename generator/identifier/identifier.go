@@ -39,15 +39,15 @@ func MakeIdentifier(name string) string {
 func ValidateAndCleanOperationsID(s string) (string, error) {
 
 	if s == "" {
-		return "", errors.New("operations ID is empty")
+		return "", ErrOperationsIDIsEmpty
 	}
 
 	if strings.HasPrefix(s, "_") {
-		return "", fmt.Errorf("operations ID cannot start with _ (operation ID: %s)", s)
+		return "", &ErrOperationsIDCanNotStartWith{operationID: s}
 	}
 
 	if invalidOperationIDChars.MatchString(s) {
-		return "", fmt.Errorf("operations ID isn't a camel case string (operation ID: %s)", s)
+		return "", &ErrOperationsIDIsNotCamelCase{operationID: s}
 	}
 
 	utf8s := utf8string.NewString(s)
@@ -57,4 +57,22 @@ func ValidateAndCleanOperationsID(s string) (string, error) {
 
 	s = assignIdentifierLiteralChars.ReplaceAllString(s, "")
 	return s, nil
+}
+
+var ErrOperationsIDIsEmpty error = errors.New("operations ID is empty")
+
+type ErrOperationsIDIsNotCamelCase struct {
+	operationID string
+}
+
+func (err ErrOperationsIDIsNotCamelCase) Error() string {
+	return fmt.Sprintf("operations ID is not a camel case string (operation ID: '%s')", err.operationID)
+}
+
+type ErrOperationsIDCanNotStartWith struct {
+	operationID string
+}
+
+func (err ErrOperationsIDCanNotStartWith) Error() string {
+	return fmt.Sprintf("operations ID can not start with _ (operation ID: '%s')", err.operationID)
 }

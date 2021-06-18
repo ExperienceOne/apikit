@@ -1,6 +1,7 @@
 package unmarshal_test
 
 import (
+	"errors"
 	"strings"
 	"testing"
 
@@ -140,7 +141,7 @@ func TestJSON_string_null_but_required(t *testing.T) {
 	err := unmarshal.JSON(strings.NewReader(nullJSON), &s, true)
 	if err == nil {
 		t.Error("expected null error")
-	} else if err != unmarshal.NullError {
+	} else if !errors.Is(err, unmarshal.NullError) {
 		t.Error(err)
 	}
 }
@@ -206,7 +207,7 @@ func TestJSON_slice_null_but_required(t *testing.T) {
 	err := unmarshal.JSON(strings.NewReader(nullJSON), &s, true)
 	if err == nil {
 		t.Error("expected null error")
-	} else if err != unmarshal.NullError {
+	} else if !errors.Is(err, unmarshal.NullError) {
 		t.Error(err)
 	}
 }
@@ -272,7 +273,7 @@ func TestJSON_map_null_but_required(t *testing.T) {
 	err := unmarshal.JSON(strings.NewReader(nullJSON), &s, true)
 	if err == nil {
 		t.Error("expected null error")
-	} else if err != unmarshal.NullError {
+	} else if !errors.Is(err, unmarshal.NullError) {
 		t.Error(err)
 	}
 }
@@ -327,7 +328,7 @@ func TestJSON_object_value_required_but_null(t *testing.T) {
 	err := unmarshal.JSON(strings.NewReader(testNullMap), &s, true)
 	if err == nil {
 		t.Error("expected null error")
-	} else if err != unmarshal.NullError {
+	} else if !errors.Is(err, unmarshal.NullError) {
 		t.Error(err)
 	}
 }

@@ -62,17 +62,17 @@ func TestMakeOperationsIDFail(t *testing.T) {
 		{
 			name:         "Operation ID with space",
 			input:        "Create Session",
-			errorMessage: "operations ID isn't a camel case string (operation ID: Create Session)",
+			errorMessage: "operations ID is not a camel case string (operation ID: 'Create Session')",
 		},
 		{
-			name:         "Operation ID with undscore first",
+			name:         "Operation ID with underscore first",
 			input:        "_CreateSession",
-			errorMessage: "operations ID cannot start with _ (operation ID: _CreateSession)",
+			errorMessage: "operations ID can not start with _ (operation ID: '_CreateSession')",
 		},
 		{
 			name:         "Operation ID with dash",
 			input:        "Create-Session",
-			errorMessage: "operations ID isn't a camel case string (operation ID: Create-Session)",
+			errorMessage: "operations ID is not a camel case string (operation ID: 'Create-Session')",
 		},
 	}
 

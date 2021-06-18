@@ -375,12 +375,11 @@ func (gen *goClientGenerator) generateOperation(operation *Operation, nameOfClie
 
 		stmts.If(jen.Id("client").Dot("hooks").Dot("OnUnknownResponseCode").Op("!=").Nil()).Block(
 			jen.Id("message").Op(":=").Id("client").Dot("hooks").Dot("OnUnknownResponseCode").Call(jen.Id("httpResponse"), jen.Id("httpRequest")),
-			jen.Return(jen.Nil(), jen.Qual("errors", "New").Call(jen.Id("message"))),
+			jen.Return(jen.Nil(), jen.Id("newErrOnUnknownResponseCode").Call(jen.Id("message"))),
 		)
 
-		stmts.Return(jen.Nil(), jen.Id("newUnknownResponseError").Call(jen.Id("httpResponse").Dot("StatusCode")))
+		stmts.Return(jen.Nil(), jen.Id("newErrUnknownResponse").Call(jen.Id("httpResponse").Dot("StatusCode")))
 	}).Line()
-
 	return jen.Id(strings.Title(operation.ID)).Params(jen.Id("request").Op("*").Id(strings.Title(operation.ID+"Request"))).Params(jen.Id(strings.Title(operation.ID+"Response")), jen.Error()), nil
 }
 

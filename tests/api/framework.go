@@ -58,9 +58,6 @@ func DevHook() HooksClient {
 		},
 	}
 }
-
-var EmptyString = errors.New("string is empty")
-
 func primitiveToString(param reflect.Value) string {
 
 	var value string
@@ -116,7 +113,7 @@ func toString(param interface{}) string {
 func stringToPrimitive(s string, param reflect.Value) error {
 
 	if param.Kind() != reflect.Ptr {
-		return fmt.Errorf("value isn't a pointer reference: %s", param.Kind().String())
+		return &ErrValueIsNotPointer{value: param}
 	}
 
 	var err error
@@ -131,7 +128,7 @@ func stringToPrimitive(s string, param reflect.Value) error {
 				return err
 			}
 			if elm.OverflowInt(val) {
-				return fmt.Errorf("int value too big: %s", s)
+				return &ErrTypeValueOverflow{value: s}
 			}
 		}
 		elm.SetInt(val)
@@ -144,7 +141,7 @@ func stringToPrimitive(s string, param reflect.Value) error {
 				return err
 			}
 			if elm.OverflowUint(val) {
-				return fmt.Errorf("unit value too big: %s", s)
+				return &ErrTypeValueOverflow{value: s}
 			}
 		}
 		elm.SetUint(val)
@@ -183,7 +180,7 @@ func stringToPrimitive(s string, param reflect.Value) error {
 		elm.SetBool(val)
 
 	default:
-		return fmt.Errorf("unsupported primitive type: '%s'", param.Kind().String())
+		return &ErrUnsupportedPrimitiveType{value: param}
 	}
 	return nil
 }
@@ -208,18 +205,19 @@ func fromString(s string, param interface{}) (err error) {
 
 	defer func() {
 		if v := recover(); v != nil {
-			err = fmt.Errorf("queryparam:FromString has panicked (%v)", v)
+			stack := debug.Stack()
+			err = &RecoverError{Err: v, Stack: stack}
 		}
 	}()
 
 	for {
 		paramReflected := reflect.ValueOf(param)
 		if paramReflected.Kind() != reflect.Ptr {
-			return errors.New("param isn't a pointer")
+			return ErrParamIsNotPointer
 		}
 
 		if paramReflected.IsNil() {
-			return errors.New("param is nil")
+			return ErrParamIsNil
 		}
 
 		kindOfElement := paramReflected.Elem().Kind()
@@ -233,7 +231,7 @@ func fromString(s string, param interface{}) (err error) {
 			if kindOfElement == reflect.Slice {
 				err = stringToSlice(s, paramReflected)
 			} else if kindOfElement == reflect.Array || kindOfElement == reflect.Map {
-				err = fmt.Errorf("unsupported kind: %s", kindOfElement.String())
+				err = &ErrUnsupportedKind{kind: kindOfElement}
 			} else {
 				err = stringToPrimitive(s, paramReflected)
 			}
@@ -243,6 +241,48 @@ func fromString(s string, param interface{}) (err error) {
 
 	return
 }
+
+var ErrParamIsNotPointer error = errors.New("param isn't a pointer")
+var ErrParamIsNil error = errors.New("param is nil")
+
+type ErrUnsupportedKind struct {
+	kind reflect.Kind
+}
+
+func (err *ErrUnsupportedKind) Error() string {
+	return fmt.Sprintf("unsupported kind: '%s'", err.kind.String())
+}
+
+type ErrValueIsNotPointer struct {
+	value reflect.Value
+}
+
+func (err *ErrValueIsNotPointer) Error() string {
+	return fmt.Sprintf("value is not a pointer: '%s'", err.value.Kind().String())
+}
+
+type ErrTypeValueOverflow struct {
+	value string
+}
+
+func (err *ErrTypeValueOverflow) Error() string {
+	return fmt.Sprintf("type overflow: '%s'", err.value)
+}
+
+type ErrUnsupportedPrimitiveType struct {
+	value reflect.Value
+}
+
+func (err *ErrUnsupportedPrimitiveType) Error() string {
+	return fmt.Sprintf("unsupported primitive type: '%s'", err.value.Kind().String())
+}
+
+type RecoverError struct {
+	Err   interface{}
+	Stack []byte
+}
+
+func (e *RecoverError) Error() string { return fmt.Sprintf("fromString panicked: %v", e.Err) }
 
 var (
 	NullError = errors.New("unexpected null value")
@@ -542,10 +582,10 @@ func (v *Validator) ValidateRequest(request interface{}) (*ValidationErrorsObjec
 }
 
 var (
-	GitCommit string = "2001f7d07ca2d0331fb6d43d2801d8f3d969a187"
-	GitBranch string = "feature/git_ldflags"
+	GitCommit string = "4e5aa8351ac60f462e31de7fedff33e9b9d2d60f"
+	GitBranch string = "feature/go113"
 	GitTag    string = "v1.0.0"
-	BuildTime string = "Mo 10. Mai 20:44:44 CEST 2021"
+	BuildTime string = "Di 11. Mai 22:24:14 CEST 2021"
 )
 
 type VersionInfo struct {
@@ -671,29 +711,53 @@ func contentTypeInList(types []string, typ string) bool {
 	return false
 }
 func newNotSupportedContentType(statusCode int, message string) error {
-	return &notSupportedContentType{
+	return &NotSupportedContentType{
 		message:    message,
 		statusCode: statusCode,
 	}
 }
 
-type notSupportedContentType struct {
+type NotSupportedContentType struct {
 	message    string
 	statusCode int
 }
 
-func (e *notSupportedContentType) Error() string {
+func (e *NotSupportedContentType) Error() string {
 	return fmt.Sprintf("error unsupported media type (%s)", e.message)
 }
 
-func (e *notSupportedContentType) StatusCode() int {
+func (e *NotSupportedContentType) StatusCode() int {
 	return e.statusCode
 }
 
 var newRequestObjectIsNilError = errors.New("request object is nil")
 
-func newUnknownResponseError(code int) error {
-	return fmt.Errorf("unknown response status code '%d'", code)
+func newErrUnknownResponse(code int) *ErrUnknownResponse {
+	return &ErrUnknownResponse{
+		code: code,
+	}
+}
+
+type ErrUnknownResponse struct {
+	code int
+}
+
+func (err *ErrUnknownResponse) Error() string {
+	return fmt.Sprintf("unknown response status code '%d'", err.code)
+}
+
+func newErrOnUnknownResponseCode(message string) *ErrOnUnknownResponseCode {
+	return &ErrOnUnknownResponseCode{
+		Message: message,
+	}
+}
+
+type ErrOnUnknownResponseCode struct {
+	Message string
+}
+
+func (err *ErrOnUnknownResponseCode) Error() string {
+	return fmt.Sprintf(err.Message)
 }
 func serveJson(w http.ResponseWriter, status int, v interface{}) error {
 
@@ -776,6 +840,8 @@ func (c *httpContext) GetHTTPRequestHeaders() (http.Header, bool) {
 	return header, ok
 }
 
+var ErrCollisionMap error = errors.New("header from context overwrites header in request object")
+
 func setRequestHeadersFromContext(httpContext HttpContext, header http.Header) error {
 
 	if httpContext == nil {
@@ -789,7 +855,7 @@ func setRequestHeadersFromContext(httpContext HttpContext, header http.Header) e
 
 	for key, values := range headersFromContext {
 		if _, exists := header[key]; exists {
-			return errors.New("header from context overwrites header in request object")
+			return ErrCollisionMap
 		}
 
 		header[key] = values
