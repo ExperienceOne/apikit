@@ -2041,6 +2041,70 @@ func (client *visAdminClient) DownloadFile(request *DownloadFileRequest) (Downlo
 	return nil, newNotSupportedContentType(415, "no supported content type")
 }
 
+// Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
+func (client *visAdminClient) FindByTags(request *FindByTagsRequest) (FindByTagsResponse, error) {
+	if request == nil {
+		return nil, newRequestObjectIsNilError
+	}
+	path := "/findByTags"
+	method := "GET"
+	endpoint := client.baseURL + path
+	httpContext := newHttpContextWrapper(client.ctx)
+	query := make(url.Values)
+	query.Add("tags", toString(request.Tags))
+	encodedQuery := query.Encode()
+	if encodedQuery != "" {
+		endpoint += "?" + encodedQuery
+	}
+	httpRequest, reqErr := http.NewRequest(method, endpoint, nil)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+	// set all headers from client context
+	err := setRequestHeadersFromContext(httpContext, httpRequest.Header)
+	if err != nil {
+		return nil, err
+	}
+	if len(httpRequest.Header["accept"]) == 0 && len(httpRequest.Header["Accept"]) == 0 {
+		httpRequest.Header["Accept"] = []string{"application/json"}
+	}
+	httpResponse, err := client.httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	defer httpResponse.Body.Close()
+	if httpResponse.StatusCode == http.StatusOK {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == contentTypeApplicationJson || contentTypeOfResponse == contentTypeApplicationHalJson {
+			response := new(FindByTags200Response)
+			decodeErr := json.NewDecoder(httpResponse.Body).Decode(&response.Body)
+			if decodeErr != nil {
+				return nil, decodeErr
+			}
+			return response, nil
+		} else if contentTypeOfResponse == "" {
+			response := new(FindByTags200Response)
+			return response, nil
+		}
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if httpResponse.StatusCode == http.StatusBadRequest {
+		contentTypeOfResponse := extractContentType(httpResponse.Header.Get(contentTypeHeader))
+		if contentTypeOfResponse == "" {
+			response := new(FindByTags400Response)
+			return response, nil
+		}
+		return nil, newNotSupportedContentType(415, contentTypeOfResponse)
+	}
+
+	if client.hooks.OnUnknownResponseCode != nil {
+		message := client.hooks.OnUnknownResponseCode(httpResponse, httpRequest)
+		return nil, newErrOnUnknownResponseCode(message)
+	}
+	return nil, newErrUnknownResponse(httpResponse.StatusCode)
+}
+
 // Retrieve a file
 func (client *visAdminClient) GenericFileDownload(request *GenericFileDownloadRequest) (GenericFileDownloadResponse, error) {
 	if request == nil {
@@ -2346,6 +2410,7 @@ type VisAdminClient interface {
 	ListElements(request *ListElementsRequest) (ListElementsResponse, error)
 	FileUpload(request *FileUploadRequest) (FileUploadResponse, error)
 	DownloadFile(request *DownloadFileRequest) (DownloadFileResponse, error)
+	FindByTags(request *FindByTagsRequest) (FindByTagsResponse, error)
 	GenericFileDownload(request *GenericFileDownloadRequest) (GenericFileDownloadResponse, error)
 	GetRental(request *GetRentalRequest) (GetRentalResponse, error)
 	GetShoes(request *GetShoesRequest) (GetShoesResponse, error)

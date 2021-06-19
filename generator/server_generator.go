@@ -2,15 +2,14 @@ package generator
 
 import (
 	"fmt"
-	"net/http"
-	"sort"
-	"strconv"
-	"strings"
-
 	"github.com/ExperienceOne/apikit/generator/file"
 	"github.com/ExperienceOne/apikit/generator/identifier"
 	"github.com/ExperienceOne/apikit/generator/openapi"
 	"github.com/ExperienceOne/apikit/generator/stringutil"
+	"net/http"
+	"sort"
+	"strconv"
+	"strings"
 
 	"github.com/dave/jennifer/jen"
 	"github.com/go-openapi/spec"
@@ -346,6 +345,7 @@ func (gen *goServerGenerator) generateHandler(operation *Operation, parametersBu
 			}
 
 			for _, param := range parametersBucket.Path {
+				// ref: https://swagger.io/docs/specification/describing-parameters/#path-parameters
 				stmts.If(jen.Id("err").Op(":=").Id("fromString").Call(jen.Id("c").Dot("Param").Call(jen.Lit(param.Name)), jen.Op("&").Id("request").Dot(strings.Title(identifier.MakeIdentifier(param.Name)))), jen.Id("err").Op("!=").Nil()).Block(
 					jen.Id("server").Dot("ErrorLogger").Call(jen.Qual("fmt", "Sprintf").Call(jen.Lit(logPrefix+"could not convert string to specific type (error: %v)"), jen.Id("err"))),
 					jen.Return(jen.Id("NewHTTPStatusCodeError").Call(jen.Qual("net/http", "StatusBadRequest"))),
@@ -367,12 +367,33 @@ func (gen *goServerGenerator) generateHandler(operation *Operation, parametersBu
 			}
 
 			for _, param := range parametersBucket.Query {
-				group := stmts.If(jen.Len(jen.Id("c").Dot("Request").Dot("URL").Dot("Query").Call().Index(jen.Lit(param.Name))).Op(">").Lit(0)).Block(
-					jen.If(jen.Id("err").Op(":=").Id("fromString").Call(jen.Id("c").Dot("Request").Dot("URL").Dot("Query").Call().Index(jen.Lit(param.Name)).Index(jen.Lit(0)), jen.Op("&").Id("request").Dot(strings.Title(identifier.MakeIdentifier(param.Name)))), jen.Id("err").Op("!=").Nil()).Block(
+				// ref: https://swagger.io/docs/specification/describing-parameters/#query-parameters
+				parameterMemberPointer := jen.Op("&").Id("request").Dot(strings.Title(identifier.MakeIdentifier(param.Name)))
+
+				parameterMember := jen.Id("request").Dot(strings.Title(identifier.MakeIdentifier(param.Name)))
+
+				group := stmts.If(jen.Len(jen.Id("c").Dot("Request").Dot("URL").Dot("Query").Call().Index(jen.Lit(param.Name))).Op(">").Lit(0)).BlockFunc(func(group *jen.Group) {
+					group.If(jen.Id("err").Op(":=").Id("fromString").Call(jen.Id("c").Dot("Request").Dot("URL").Dot("Query").Call().Index(jen.Lit(param.Name)).Index(jen.Lit(0)), parameterMemberPointer), jen.Id("err").Op("!=").Nil()).Block(
 						jen.Id("server").Dot("ErrorLogger").Call(jen.Qual("fmt", "Sprintf").Call(jen.Lit(logPrefix+"could not convert string to specific type (error: %v)"), jen.Id("err"))),
 						jen.Return(jen.Id("NewHTTPStatusCodeError").Call(jen.Qual("net/http", "StatusBadRequest"))),
-					),
-				)
+					)
+
+					if param.Type == "array" {
+						if param.MinItems != nil {
+							group.Comment("minItems validator constrain at least " + strconv.Itoa(int(*param.MinItems)) + " items")
+							group.If(jen.Id("len").Call(parameterMember).Op("<").Lit(int(*param.MinItems))).Block(
+								jen.Return(jen.Id("NewHTTPStatusCodeError").Call(jen.Qual("net/http", "StatusBadRequest"))),
+							)
+						}
+						if param.MaxItems != nil {
+							group.Comment("maxItems validator constrain at maximum " + strconv.Itoa(int(*param.MaxItems)) + " items")
+							group.If(jen.Id("len").Call(parameterMember).Op(">").Lit(int(*param.MaxItems))).Block(
+								jen.Return(jen.Id("NewHTTPStatusCodeError").Call(jen.Qual("net/http", "StatusBadRequest"))),
+							)
+						}
+					}
+				})
+
 				if param.Required {
 					group.Else().BlockFunc(func(stmts *jen.Group) {
 						stmts.Return(jen.Id("NewHTTPStatusCodeError").Call(jen.Qual("net/http", "StatusBadRequest")))

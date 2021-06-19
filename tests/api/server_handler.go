@@ -371,3 +371,7 @@ func FileUpload(ctx context.Context, req *FileUploadRequest) FileUploadResponse 
 
 	return new(FileUpload204Response)
 }
+
+func FindByTags(ctx context.Context, request *FindByTagsRequest) FindByTagsResponse {
+	return &FindByTags200Response{}
+}
