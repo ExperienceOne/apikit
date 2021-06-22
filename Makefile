@@ -47,7 +47,7 @@ test: testgenerator ## run tests
 	$(GOPATH)/bin/test_apikit --debug generate --mocked ./tests/data/swagger.yaml  ./tests/mock/ api
 	$(GOPATH)/bin/test_apikit --debug generate ./example/api.yaml  ./example todo
 	$(GOPATH)/bin/test_apikit --debug generate ./example/api.yaml  ./example todo
-	for package in $(ALL_PACKAGES); do ENVIRONMENT=test go test $$package; if [ $$? -ne "0" ]; then echo "Test failed!"; exit 1; fi; done
+	for package in $(ALL_PACKAGES); do ENVIRONMENT=test go test -count=1 -v $$package; if [ $$? -ne "0" ]; then echo "Test failed!"; exit 1; fi; done
 
 .PHONY: lint
 lint:
