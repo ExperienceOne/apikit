@@ -345,7 +345,7 @@ func (gen *goServerGenerator) generateHandler(operation *Operation, parametersBu
 			}
 
 			for _, param := range parametersBucket.Path {
-				// ref: https://swagger.io/docs/specification/describing-parameters/#path-parameters
+				// ref: https://swagger.io/docs/specification/2-0/describing-parameters/#path-parameters
 				stmts.If(jen.Id("err").Op(":=").Id("fromString").Call(jen.Id("c").Dot("Param").Call(jen.Lit(param.Name)), jen.Op("&").Id("request").Dot(strings.Title(identifier.MakeIdentifier(param.Name)))), jen.Id("err").Op("!=").Nil()).Block(
 					jen.Id("server").Dot("ErrorLogger").Call(jen.Qual("fmt", "Sprintf").Call(jen.Lit(logPrefix+"could not convert string to specific type (error: %v)"), jen.Id("err"))),
 					jen.Return(jen.Id("NewHTTPStatusCodeError").Call(jen.Qual("net/http", "StatusBadRequest"))),
@@ -367,7 +367,7 @@ func (gen *goServerGenerator) generateHandler(operation *Operation, parametersBu
 			}
 
 			for _, param := range parametersBucket.Query {
-				// ref: https://swagger.io/docs/specification/describing-parameters/#query-parameters
+				// ref: https://swagger.io/docs/specification/2-0/describing-parameters/#query-parameters
 				parameterMemberPointer := jen.Op("&").Id("request").Dot(strings.Title(identifier.MakeIdentifier(param.Name)))
 
 				parameterMember := jen.Id("request").Dot(strings.Title(identifier.MakeIdentifier(param.Name)))
