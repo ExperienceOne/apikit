@@ -29,13 +29,14 @@ require (
 	github.com/prometheus/client_golang v1.4.1
 	github.com/prometheus/procfs v0.0.10 // indirect
 	github.com/sirupsen/logrus v1.4.2
+	github.com/spf13/viper v1.7.0 // indirect
 	github.com/stretchr/testify v1.4.0
 	github.com/urfave/cli v1.22.2
+	github.com/vektra/mockery/v2 v2.9.0 // indirect
 	go.mongodb.org/mongo-driver v1.3.0 // indirect
 	golang.org/x/exp v0.0.0-20200224162631-6cc2880d07d6
-	golang.org/x/net v0.0.0-20200222125558-5a598a2470a0 // indirect
 	golang.org/x/sys v0.0.0-20200223170610-d5e6a3e2c0ae // indirect
-	golang.org/x/tools v0.0.0-20200225022059-a0ec867d517c
+	golang.org/x/tools v0.0.0-20200323144430-8dcfad9e016e
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )

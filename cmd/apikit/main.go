@@ -62,24 +62,12 @@ func main() {
 				generatePrometheus := ctx.Bool(flagGeneratePrometheus)
 
 				if ctx.Bool(flagGenerateOnlyClient) {
-					if ctx.Bool(flagGenerateMock) {
-						return GenerateAction(generator.NewGoClientAPIMockGenerator, generatePrometheus, ctx)
-					} else {
-						return GenerateAction(generator.NewGoClientAPIGenerator, generatePrometheus, ctx)
-					}
+					return GenerateAction(generator.NewGoClientAPIGenerator, generatePrometheus, ctx)
 				}
 				if ctx.Bool(flagGenerateOnlyServer) {
-					if ctx.Bool(flagGenerateMock) {
-						return GenerateAction(generator.NewGoServerAPIMockGenerator, generatePrometheus, ctx)
-					} else {
-						return GenerateAction(generator.NewGoServerAPIGenerator, generatePrometheus, ctx)
-					}
+					return GenerateAction(generator.NewGoServerAPIGenerator, generatePrometheus, ctx)
 				}
-				if ctx.Bool(flagGenerateMock) {
-					return GenerateAction(generator.NewGoAPIMockGenerator, generatePrometheus, ctx)
-				} else {
-					return GenerateAction(generator.NewGoAPIGenerator, generatePrometheus, ctx)
-				}
+				return GenerateAction(generator.NewGoAPIGenerator, generatePrometheus, ctx)
 			},
 			Flags: []cli.Flag{
 				cli.BoolFlag{
@@ -89,10 +77,6 @@ func main() {
 				cli.BoolFlag{
 					Name:  flagGenerateOnlyServer,
 					Usage: "generate server code only",
-				},
-				cli.BoolFlag{
-					Name:  flagGenerateMock,
-					Usage: "generate mock",
 				},
 				cli.BoolFlag{
 					Name:  flagGeneratePrometheus,

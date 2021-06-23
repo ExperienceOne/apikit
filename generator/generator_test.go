@@ -28,7 +28,10 @@ func Test(t *testing.T) {
 					return err
 				}
 
-				return generator.NewGoClientAPIGenerator(spec).Generate(path, pkg, false)
+				gen := generator.NewGoClientAPIGenerator(spec)
+				clientApiGenerator := gen.(*generator.ClientApiGenerator)
+				clientApiGenerator.GenerateMocks = false
+				return clientApiGenerator.Generate(path, pkg, false)
 			},
 			files: []string{
 				"types.go",
@@ -46,7 +49,11 @@ func Test(t *testing.T) {
 					return err
 				}
 
-				return generator.NewGoServerAPIGenerator(spec).Generate(path, pkg, false)
+				gen := generator.NewGoServerAPIGenerator(spec)
+				serverApiGenerator := gen.(*generator.ServerApiGenerator)
+				serverApiGenerator.GenerateMocks = false
+
+				return serverApiGenerator.Generate(path, pkg, false)
 			},
 			files: []string{
 				"types.go",
@@ -64,7 +71,12 @@ func Test(t *testing.T) {
 					return err
 				}
 
-				return generator.NewGoAPIGenerator(spec).Generate(path, pkg, true)
+
+				gen := generator.NewGoAPIGenerator(spec)
+				apiGenerator := gen.(*generator.ApiGenerator)
+				apiGenerator.GenerateMocks = false
+
+				return apiGenerator.Generate(path, pkg, true)
 			},
 			files: []string{
 				"types.go",
@@ -80,13 +92,13 @@ func Test(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			testDir := filepath.Join(tmpDir, "test"+strconv.Itoa(rand.Int()))
+			testDir := filepath.Join(tmpDir, "test"+strconv.Itoa(rand.Int()), "api")
 
 			if err := os.MkdirAll(testDir, os.ModePerm); err != nil {
 				t.Errorf("could not create directory")
 			}
 
-			if err := test.generate(testDir, "generic"); err != nil {
+			if err := test.generate(testDir, "api"); err != nil {
 				t.Errorf("could not generate files (%v)", err)
 				return
 			}
