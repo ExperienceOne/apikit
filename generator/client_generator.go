@@ -29,10 +29,13 @@ func NewGoClientGenerator(spec *openapi.Spec) *goClientGenerator {
 	}
 }
 
+func (gen goClientGenerator) ClientName() string {
+	return stringutil.UnTitle(identifier.MakeIdentifier(gen.Spec.Info().Title + "Client"))
+}
+
 func (gen *goClientGenerator) Generate(path, pckg string, generatePrometheus bool) error {
 
 	file := file.NewFile(pckg)
-	nameOfClient := stringutil.UnTitle(identifier.MakeIdentifier(gen.Spec.Info().Title + "Client"))
 
 	clientMembers := []jen.Code{
 		jen.Id("baseURL").String(),
@@ -46,13 +49,13 @@ func (gen *goClientGenerator) Generate(path, pckg string, generatePrometheus boo
 		clientMembers = append(clientMembers, jen.Id("prometheusHandler").Op("*").Id("PrometheusHandler"))
 	}
 
-	file.Type().Id(nameOfClient).Struct(clientMembers...)
+	file.Type().Id(gen.ClientName()).Struct(clientMembers...)
 
 	var clientFuncs []jen.Code
 	operations := make([]*Operation, 0)
 	if err := gen.WalkOperations(func(operation *Operation) error {
 
-		funcDef, err := gen.generateOperation(operation, nameOfClient, generatePrometheus, file)
+		funcDef, err := gen.generateOperation(operation, gen.ClientName(), generatePrometheus, file)
 		if err != nil {
 			return errors.Wrapf(err, "error generating code for %s '%v'", operation.Method, operation.Operation)
 		}
@@ -66,8 +69,8 @@ func (gen *goClientGenerator) Generate(path, pckg string, generatePrometheus boo
 		return errors.Wrap(err, "error generating operations")
 	}
 
-	file.Type().Id(strings.Title(nameOfClient)).Interface(clientFuncs...)
-	gen.generateConstructor(nameOfClient, pckg, operations, generatePrometheus, file)
+	file.Type().Id(strings.Title(gen.ClientName())).Interface(clientFuncs...)
+	gen.generateConstructor(gen.ClientName(), pckg, operations, generatePrometheus, file)
 
 	err := file.Save(path)
 	if err != nil {

@@ -1,8 +1,11 @@
 package generator
 
 import (
+	"github.com/spf13/viper"
+	"github.com/vektra/mockery/v2/cmd"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 
 	"github.com/ExperienceOne/apikit/framework"
 	"github.com/ExperienceOne/apikit/generator/openapi"
@@ -60,19 +63,19 @@ var (
 )
 
 type ApiGenerator struct {
+	GenerateMocks bool
 	goTypesGenerator      *goTypesGenerator
 	goServerGenerator     *goServerGenerator
 	goClientGenerator     *goClientGenerator
-	goClientMockGenerator *GoClientMockGenerator
 }
 
 func NewGoAPIGenerator(spec *openapi.Spec) Generator {
 
 	return &ApiGenerator{
+		GenerateMocks:         true,
 		goTypesGenerator:      NewGoTypesGenerator(spec),
 		goServerGenerator:     NewGoServerGenerator(spec),
 		goClientGenerator:     NewGoClientGenerator(spec),
-		goClientMockGenerator: NewGoClientMockGenerator(spec),
 	}
 }
 
@@ -133,40 +136,28 @@ func (gen *ApiGenerator) generate(path, pkg string, client, server, mock, genera
 	}
 
 	if client {
-		if mock {
-			err = gen.goClientMockGenerator.Generate(filepath.Join(path, clientFile), pkg)
+		err = gen.goClientGenerator.Generate(filepath.Join(path, clientFile), pkg, generatePrometheus)
+		if err != nil {
+			return errors.Wrap(err, "error generating client")
+		}
+
+		if gen.GenerateMocks {
+			mockery, err := cmd.GetRootAppFromViper(viper.GetViper())
 			if err != nil {
-				return errors.Wrap(err, "error generating mocked client")
+				return err
 			}
-		} else {
-			err = gen.goClientGenerator.Generate(filepath.Join(path, clientFile), pkg, generatePrometheus)
+			mockery.Config.InPackage = true
+			mockery.Config.Name = strings.Title(gen.goClientGenerator.ClientName())
+			mockery.Config.Dir = path
+
+			err = mockery.Run()
 			if err != nil {
-				return errors.Wrap(err, "error generating client")
+				return err
 			}
 		}
 	}
 
 	return nil
-}
-
-type ApiMockGenerator struct {
-	ApiGenerator
-}
-
-func NewGoAPIMockGenerator(spec *openapi.Spec) Generator {
-
-	return &ApiMockGenerator{
-		ApiGenerator: ApiGenerator{
-			// TODO implement GoServerMockGenerator
-			goClientMockGenerator: NewGoClientMockGenerator(spec),
-			goTypesGenerator:      NewGoTypesGenerator(spec),
-		},
-	}
-}
-
-func (gen *ApiMockGenerator) Generate(path, pkg string, generatePrometheus bool) error {
-
-	return gen.generate(path, pkg, true, true, true, generatePrometheus)
 }
 
 type ServerApiGenerator struct {
@@ -188,25 +179,6 @@ func (gen *ServerApiGenerator) Generate(path, pkg string, generatePrometheus boo
 	return gen.generate(path, pkg, false, true, false, generatePrometheus)
 }
 
-type ServerApiMockGenerator struct {
-	ApiGenerator
-}
-
-func NewGoServerAPIMockGenerator(spec *openapi.Spec) Generator {
-
-	return &ServerApiMockGenerator{
-		ApiGenerator: ApiGenerator{
-			// TODO implement GoServerMockGenerator
-			goTypesGenerator: NewGoTypesGenerator(spec),
-		},
-	}
-}
-
-func (gen *ServerApiMockGenerator) Generate(path, pkg string, generatePrometheus bool) error {
-
-	return gen.generate(path, pkg, false, true, true, generatePrometheus)
-}
-
 type ClientApiGenerator struct {
 	ApiGenerator
 }
@@ -222,25 +194,5 @@ func NewGoClientAPIGenerator(spec *openapi.Spec) Generator {
 }
 
 func (gen *ClientApiGenerator) Generate(path, pkg string, generatePrometheus bool) error {
-
 	return gen.generate(path, pkg, true, false, false, generatePrometheus)
-}
-
-type ClientApiMockGenerator struct {
-	ApiGenerator
-}
-
-func NewGoClientAPIMockGenerator(spec *openapi.Spec) Generator {
-
-	return &ClientApiMockGenerator{
-		ApiGenerator: ApiGenerator{
-			goClientMockGenerator: NewGoClientMockGenerator(spec),
-			goTypesGenerator:      NewGoTypesGenerator(spec),
-		},
-	}
-}
-
-func (gen *ClientApiMockGenerator) Generate(path, pkg string, generatePrometheus bool) error {
-
-	return gen.generate(path, pkg, true, false, true, generatePrometheus)
 }
