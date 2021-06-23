@@ -68,6 +68,7 @@ func TestMain(m *testing.M) {
 	testServerWrapper.SetDownloadNestedFileHandler(api.NestedFileDownload)
 	testServerWrapper.SetGetShoesHandler(api.GetShoes)
 	testServerWrapper.SetFileUploadHandler(api.FileUpload)
+	testServerWrapper.SetFindByTagsHandler(api.FindByTags)
 
 	go testServerWrapper.Start(4567)
 	time.Sleep(1 * time.Second)
@@ -760,5 +761,58 @@ func TestFileUpload(t *testing.T) {
 	_, ok := resp.(*api.FileUpload204Response)
 	if !ok {
 		t.Fatalf("unexpected FileUploadResponse: %#v", resp)
+	}
+}
+
+func TestMinMaxItemsValidator(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		tags       []string
+		statusCode int
+	}{
+		{
+			name:       "valid",
+			tags:       []string{"tag1", "tag2", "tag3"},
+			statusCode: http.StatusOK,
+		},
+		{
+			name:       "valid",
+			tags:       []string{"tag1", "tag2"},
+			statusCode: http.StatusOK,
+		},
+		{
+			name:       "valid",
+			tags:       []string{"tag1", "tag2", "tag3", "tag4", "tag5"},
+			statusCode: http.StatusOK,
+		},
+		{
+			name:       "min_invalid",
+			tags:       []string{"tag1"},
+			statusCode: http.StatusBadRequest,
+		},
+		{
+			name:       "max_invalid",
+			tags:       []string{"tag1", "tag2", "tag3", "tag4", "tag5", "tag6"},
+			statusCode: http.StatusBadRequest,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+
+			req := api.FindByTagsRequest{
+				Tags: test.tags,
+			}
+
+			resp, err := VisAdminClient.FindByTags(&req)
+			if err != nil {
+				t.Fatalf("error find by tags failed: %v", err)
+			}
+
+			if test.statusCode != resp.StatusCode() {
+				t.Fatalf("response status is bad, want:'%d', got:'%d'", test.statusCode, resp.StatusCode())
+			}
+		})
 	}
 }

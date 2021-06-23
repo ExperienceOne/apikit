@@ -391,6 +391,24 @@ The string validation supports the `minLength`,  `maxLength` and the `pattern` a
 
 The integer validation supports the `minimum`, `maximum`, `exclusiveMinimum` and `exclusiveMaximum` attributes.
 
+### Array query parameters validation
+
+The array query parameters validation also supports the `minItems` and `maxItems` attributes.
+
+#### Example 
+```yaml
+   parameters:
+     - name: tags 
+       in: query
+       description: Tags to filter by
+       required: true
+       type: array
+       minItems: 2
+       maxItems: 5
+       items:
+         type: string
+```
+
 ### Content types
 
 The client needs to send the correct content type header matching the consumes attribute in the OpenAPIv2 definition. If not, the server responds with a `415 Unsupported media type` error.

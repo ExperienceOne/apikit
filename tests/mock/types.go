@@ -1969,6 +1969,49 @@ func (r *DownloadFile200Response) write(response http.ResponseWriter) error {
 	return nil
 }
 
+type FindByTagsRequest struct {
+	Tags []string
+}
+
+type FindByTagsResponse interface {
+	isFindByTagsResponse()
+	StatusCode() int
+	write(response http.ResponseWriter) error
+}
+
+// successful operation
+type FindByTags200Response struct {
+	Body string
+}
+
+func (r *FindByTags200Response) isFindByTagsResponse() {}
+
+func (r *FindByTags200Response) StatusCode() int {
+	return 200
+}
+
+func (r *FindByTags200Response) write(response http.ResponseWriter) error {
+	if err := serveJson(response, 200, r.Body); err != nil {
+		return NewHTTPStatusCodeError(http.StatusInternalServerError)
+	}
+	return nil
+}
+
+// Invalid tag value
+type FindByTags400Response struct{}
+
+func (r *FindByTags400Response) isFindByTagsResponse() {}
+
+func (r *FindByTags400Response) StatusCode() int {
+	return 400
+}
+
+func (r *FindByTags400Response) write(response http.ResponseWriter) error {
+	response.Header()[contentTypeHeader] = []string{}
+	response.WriteHeader(400)
+	return nil
+}
+
 type GenericFileDownloadRequest struct {
 	Ext string
 }
