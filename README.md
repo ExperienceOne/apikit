@@ -10,7 +10,7 @@
     - [Generate standard project structure](#generate-standard-project-structure)
     - [Define the API with OpenAPIv2](#define-the-api-with-openapiv2)
     - [Validate the OpenAPIv2 definition](#validate-the-openapiv2-definition)
-    - [Generate API server and client](#generate-api-server-and-client)
+    - [Generate API server, client and mock client](#generate-api-server-client-and-mock-client)
     - [Using the API client](#using-the-api-client)
     - [Using the API server](#using-the-api-server)
     - [Generate handler stubs](#generate-handler-stubs)
@@ -153,15 +153,51 @@ cd myproject
 $GOPATH/bin/apikit validate doc/myproject.yaml
 ```
 
-### Generate API server and client
+### Generate API server, client and mock client
 
-The `apikit generate <api.yaml> <dest.dir> <package>` command generates the client and server API based on an OpenAPIv2 definition. Use `--only-client` if the server component and `--only-server` if the client component is not needed.
+The `apikit generate <api.yaml> <dest.dir> <package> <flags>` 
+command generates the client, mock client and server API based on an OpenAPIv2 definition.
+
+* (Optional) Use flag `--only-client` to only generate the server component should be generated.
+* (Optional) Use flag `--only-server` to only generate the client component should be generated.
+* (Optional) Use flag `--mocked` to generate additionally a mocked client which is satisfying the interface of the client (interchangeable). 
+  This flag works in combination with `--only-client` or without the flags `--only-client` and `--only-server`. 
+  
+Note:  that all endpoints need to have an operation ID to generate successfully. The generated code should not be edited manually. Instead, the OpenAPI definition should be updated and the source regenerated with APIKit `generate` command.
+
+#### How to use the mock client?
+
+Please read further about it on this page -> https://github.com/vektra/mockery
+
+#### Example generate server, client and mocked client
+
+```bash
+$GOPATH/bin/apikit generate doc/myproject.yaml api api --mocked
+```
+
+#### Example generate server and client
 
 ```bash
 $GOPATH/bin/apikit generate doc/myproject.yaml api api
 ```
 
-Note that all endpoints need to have an operation ID to generate successfully. The generated code should not be edited manually. Instead, the OpenAPI definition should be updated and the source regenerated with APIKit `generate` command.
+#### Example generate only client and mocked client
+
+```bash
+$GOPATH/bin/apikit generate doc/myproject.yaml api api --only-client --mocked
+```
+
+#### Example generate only client
+
+```bash
+$GOPATH/bin/apikit generate doc/myproject.yaml api api --only-client
+```
+
+#### Example generate only server
+
+```bash
+$GOPATH/bin/apikit generate doc/myproject.yaml api api --only-server
+```
 
 ### Using the API client
 

@@ -141,7 +141,7 @@ func main() {
 		cli.ShowCommandHelpAndExit(cli.NewContext(app, nil, nil), cmdProject, 1)
 	}
 
-	if command == cmdGenerate && (len(args) < 4 || len(args) > 5) {
+	if command == cmdGenerate && (len(args) < 4) {
 		cli.ShowCommandHelpAndExit(cli.NewContext(app, nil, nil), cmdGenerate, 1)
 	}
 
