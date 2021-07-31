@@ -30,8 +30,7 @@ func Test(t *testing.T) {
 
 				gen := generator.NewGoClientAPIGenerator(spec)
 				clientApiGenerator := gen.(*generator.ClientApiGenerator)
-				clientApiGenerator.GenerateMocks = false
-				return clientApiGenerator.Generate(path, pkg, false)
+				return clientApiGenerator.Generate(path, pkg, false, false)
 			},
 			files: []string{
 				"types.go",
@@ -51,9 +50,8 @@ func Test(t *testing.T) {
 
 				gen := generator.NewGoServerAPIGenerator(spec)
 				serverApiGenerator := gen.(*generator.ServerApiGenerator)
-				serverApiGenerator.GenerateMocks = false
 
-				return serverApiGenerator.Generate(path, pkg, false)
+				return serverApiGenerator.Generate(path, pkg, false, false)
 			},
 			files: []string{
 				"types.go",
@@ -71,12 +69,10 @@ func Test(t *testing.T) {
 					return err
 				}
 
-
 				gen := generator.NewGoAPIGenerator(spec)
 				apiGenerator := gen.(*generator.ApiGenerator)
-				apiGenerator.GenerateMocks = false
 
-				return apiGenerator.Generate(path, pkg, true)
+				return apiGenerator.Generate(path, pkg, true, false)
 			},
 			files: []string{
 				"types.go",

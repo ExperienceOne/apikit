@@ -60,14 +60,15 @@ func main() {
 			Action: func(ctx *cli.Context) error {
 
 				generatePrometheus := ctx.Bool(flagGeneratePrometheus)
+				generateMocks := ctx.Bool(flagGenerateMock)
 
 				if ctx.Bool(flagGenerateOnlyClient) {
-					return GenerateAction(generator.NewGoClientAPIGenerator, generatePrometheus, ctx)
+					return GenerateAction(generator.NewGoClientAPIGenerator, generatePrometheus, generateMocks, ctx)
 				}
 				if ctx.Bool(flagGenerateOnlyServer) {
-					return GenerateAction(generator.NewGoServerAPIGenerator, generatePrometheus, ctx)
+					return GenerateAction(generator.NewGoServerAPIGenerator, generatePrometheus, generateMocks, ctx)
 				}
-				return GenerateAction(generator.NewGoAPIGenerator, generatePrometheus, ctx)
+				return GenerateAction(generator.NewGoAPIGenerator, generatePrometheus, generateMocks, ctx)
 			},
 			Flags: []cli.Flag{
 				cli.BoolFlag{
@@ -77,6 +78,10 @@ func main() {
 				cli.BoolFlag{
 					Name:  flagGenerateOnlyServer,
 					Usage: "generate server code only",
+				},
+				cli.BoolFlag{
+					Name:  flagGenerateMock,
+					Usage: "generate mock",
 				},
 				cli.BoolFlag{
 					Name:  flagGeneratePrometheus,
@@ -161,7 +166,7 @@ func main() {
 	}
 }
 
-func GenerateAction(constructor func(spec *openapi.Spec) generator.Generator, generatePrometheus bool, ctx *cli.Context) error {
+func GenerateAction(constructor func(spec *openapi.Spec) generator.Generator, generatePrometheus bool, generateMocks bool, ctx *cli.Context) error {
 
 	if ctx.GlobalBool(flagDebug) {
 		log.SetLevel(log.DebugLevel)
@@ -175,7 +180,7 @@ func GenerateAction(constructor func(spec *openapi.Spec) generator.Generator, ge
 		return errors.Wrapf(err, "failed to load swagger file '%s'", specFile)
 	}
 
-	if err := constructor(spec).Generate(dest, pkg, generatePrometheus); err != nil {
+	if err := constructor(spec).Generate(dest, pkg, generatePrometheus, generateMocks); err != nil {
 		return errors.Wrap(err, "failed to generate code")
 	}
 

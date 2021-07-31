@@ -1,15 +1,11 @@
 package generator
 
 import (
-	"github.com/spf13/viper"
-	"github.com/vektra/mockery/v2/cmd"
-	"io/ioutil"
-	"path/filepath"
-	"strings"
-
 	"github.com/ExperienceOne/apikit/framework"
 	"github.com/ExperienceOne/apikit/generator/openapi"
 	"github.com/pkg/errors"
+	"io/ioutil"
+	"path/filepath"
 )
 
 const (
@@ -63,28 +59,26 @@ var (
 )
 
 type ApiGenerator struct {
-	GenerateMocks bool
-	goTypesGenerator      *goTypesGenerator
-	goServerGenerator     *goServerGenerator
-	goClientGenerator     *goClientGenerator
+	goTypesGenerator  *goTypesGenerator
+	goServerGenerator *goServerGenerator
+	goClientGenerator *goClientGenerator
 }
 
 func NewGoAPIGenerator(spec *openapi.Spec) Generator {
 
 	return &ApiGenerator{
-		GenerateMocks:         true,
-		goTypesGenerator:      NewGoTypesGenerator(spec),
-		goServerGenerator:     NewGoServerGenerator(spec),
-		goClientGenerator:     NewGoClientGenerator(spec),
+		goTypesGenerator:  NewGoTypesGenerator(spec),
+		goServerGenerator: NewGoServerGenerator(spec),
+		goClientGenerator: NewGoClientGenerator(spec),
 	}
 }
 
-func (gen *ApiGenerator) Generate(path, pkg string, generatePrometheus bool) error {
+func (gen *ApiGenerator) Generate(path, pkg string, generatePrometheus bool, generateMocks bool) error {
 
-	return gen.generate(path, pkg, true, true, false, generatePrometheus)
+	return gen.generate(path, pkg, true, true, generatePrometheus, generateMocks)
 }
 
-func (gen *ApiGenerator) generate(path, pkg string, client, server, mock, generatePrometheus bool) error {
+func (gen *ApiGenerator) generate(path, pkg string, client, server, generatePrometheus, generateMocks bool) error {
 
 	fwCode := framework.Code
 	if client && !server {
@@ -125,35 +119,16 @@ func (gen *ApiGenerator) generate(path, pkg string, client, server, mock, genera
 	}
 
 	if server {
-		if mock {
-			return errors.New("server mock is not implemented yet")
-		} else {
-			err = gen.goServerGenerator.Generate(filepath.Join(path, serverFile), pkg, validators, generatePrometheus)
-			if err != nil {
-				return errors.Wrap(err, "error generating server")
-			}
+		err = gen.goServerGenerator.Generate(filepath.Join(path, serverFile), pkg, validators, generatePrometheus)
+		if err != nil {
+			return errors.Wrap(err, "error generating server")
 		}
 	}
 
 	if client {
-		err = gen.goClientGenerator.Generate(filepath.Join(path, clientFile), pkg, generatePrometheus)
+		err = gen.goClientGenerator.Generate(filepath.Join(path, clientFile), pkg, generatePrometheus, generateMocks)
 		if err != nil {
 			return errors.Wrap(err, "error generating client")
-		}
-
-		if gen.GenerateMocks {
-			mockery, err := cmd.GetRootAppFromViper(viper.GetViper())
-			if err != nil {
-				return err
-			}
-			mockery.Config.InPackage = true
-			mockery.Config.Name = strings.Title(gen.goClientGenerator.ClientName())
-			mockery.Config.Dir = path
-
-			err = mockery.Run()
-			if err != nil {
-				return err
-			}
 		}
 	}
 
@@ -174,9 +149,9 @@ func NewGoServerAPIGenerator(spec *openapi.Spec) Generator {
 	}
 }
 
-func (gen *ServerApiGenerator) Generate(path, pkg string, generatePrometheus bool) error {
+func (gen *ServerApiGenerator) Generate(path, pkg string, generatePrometheus, generateMocks bool) error {
 
-	return gen.generate(path, pkg, false, true, false, generatePrometheus)
+	return gen.generate(path, pkg, false, true, generatePrometheus, generateMocks)
 }
 
 type ClientApiGenerator struct {
@@ -193,6 +168,6 @@ func NewGoClientAPIGenerator(spec *openapi.Spec) Generator {
 	}
 }
 
-func (gen *ClientApiGenerator) Generate(path, pkg string, generatePrometheus bool) error {
-	return gen.generate(path, pkg, true, false, false, generatePrometheus)
+func (gen *ClientApiGenerator) Generate(path, pkg string, generatePrometheus, generateMocks bool) error {
+	return gen.generate(path, pkg, true, false, generatePrometheus, generateMocks)
 }
