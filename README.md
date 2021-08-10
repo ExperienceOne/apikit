@@ -158,8 +158,8 @@ $GOPATH/bin/apikit validate doc/myproject.yaml
 The `apikit generate <api.yaml> <dest.dir> <package> <flags>` 
 command generates the client, mock client and server API based on an OpenAPIv2 definition.
 
-* (Optional) Use flag `--only-client` to only generate the server component should be generated.
-* (Optional) Use flag `--only-server` to only generate the client component should be generated.
+* (Optional) Use flag `--only-client` to only generate the client component should be generated.
+* (Optional) Use flag `--only-server` to only generate the server component should be generated.
 * (Optional) Use flag `--mocked` to generate additionally a mocked client which is satisfying the interface of the client (interchangeable). 
   This flag works in combination with `--only-client` or without the flags `--only-client` and `--only-server`. 
   

@@ -5,7 +5,6 @@ go 1.13
 require (
 	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496 // indirect
 	github.com/corpix/uarand v0.1.1 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dave/jennifer v1.4.0
 	github.com/fatih/astrewrite v0.0.0-20191207154002-9094e544fcef
 	github.com/go-openapi/analysis v0.19.7
@@ -29,10 +28,10 @@ require (
 	github.com/prometheus/client_golang v1.4.1
 	github.com/prometheus/procfs v0.0.10 // indirect
 	github.com/sirupsen/logrus v1.4.2
-	github.com/spf13/viper v1.7.0 // indirect
+	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.4.0
 	github.com/urfave/cli v1.22.2
-	github.com/vektra/mockery/v2 v2.9.0 // indirect
+	github.com/vektra/mockery/v2 v2.9.0
 	go.mongodb.org/mongo-driver v1.3.0 // indirect
 	golang.org/x/exp v0.0.0-20200224162631-6cc2880d07d6
 	golang.org/x/sys v0.0.0-20200223170610-d5e6a3e2c0ae // indirect
