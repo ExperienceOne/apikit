@@ -60,26 +60,15 @@ func main() {
 			Action: func(ctx *cli.Context) error {
 
 				generatePrometheus := ctx.Bool(flagGeneratePrometheus)
+				generateMocks := ctx.Bool(flagGenerateMock)
 
 				if ctx.Bool(flagGenerateOnlyClient) {
-					if ctx.Bool(flagGenerateMock) {
-						return GenerateAction(generator.NewGoClientAPIMockGenerator, generatePrometheus, ctx)
-					} else {
-						return GenerateAction(generator.NewGoClientAPIGenerator, generatePrometheus, ctx)
-					}
+					return GenerateAction(generator.NewGoClientAPIGenerator, generatePrometheus, generateMocks, ctx)
 				}
 				if ctx.Bool(flagGenerateOnlyServer) {
-					if ctx.Bool(flagGenerateMock) {
-						return GenerateAction(generator.NewGoServerAPIMockGenerator, generatePrometheus, ctx)
-					} else {
-						return GenerateAction(generator.NewGoServerAPIGenerator, generatePrometheus, ctx)
-					}
+					return GenerateAction(generator.NewGoServerAPIGenerator, generatePrometheus, generateMocks, ctx)
 				}
-				if ctx.Bool(flagGenerateMock) {
-					return GenerateAction(generator.NewGoAPIMockGenerator, generatePrometheus, ctx)
-				} else {
-					return GenerateAction(generator.NewGoAPIGenerator, generatePrometheus, ctx)
-				}
+				return GenerateAction(generator.NewGoAPIGenerator, generatePrometheus, generateMocks, ctx)
 			},
 			Flags: []cli.Flag{
 				cli.BoolFlag{
@@ -152,7 +141,7 @@ func main() {
 		cli.ShowCommandHelpAndExit(cli.NewContext(app, nil, nil), cmdProject, 1)
 	}
 
-	if command == cmdGenerate && (len(args) < 4 || len(args) > 5) {
+	if command == cmdGenerate && (len(args) < 4) {
 		cli.ShowCommandHelpAndExit(cli.NewContext(app, nil, nil), cmdGenerate, 1)
 	}
 
@@ -177,7 +166,7 @@ func main() {
 	}
 }
 
-func GenerateAction(constructor func(spec *openapi.Spec) generator.Generator, generatePrometheus bool, ctx *cli.Context) error {
+func GenerateAction(constructor func(spec *openapi.Spec) generator.Generator, generatePrometheus bool, generateMocks bool, ctx *cli.Context) error {
 
 	if ctx.GlobalBool(flagDebug) {
 		log.SetLevel(log.DebugLevel)
@@ -191,7 +180,7 @@ func GenerateAction(constructor func(spec *openapi.Spec) generator.Generator, ge
 		return errors.Wrapf(err, "failed to load swagger file '%s'", specFile)
 	}
 
-	if err := constructor(spec).Generate(dest, pkg, generatePrometheus); err != nil {
+	if err := constructor(spec).Generate(dest, pkg, generatePrometheus, generateMocks); err != nil {
 		return errors.Wrap(err, "failed to generate code")
 	}
 

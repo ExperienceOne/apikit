@@ -20,19 +20,24 @@ import (
 
 type goClientGenerator struct {
 	*GoGenerator
+	mockGoClientGenerator *mockGoClientGenerator
 }
 
 func NewGoClientGenerator(spec *openapi.Spec) *goClientGenerator {
 
 	return &goClientGenerator{
-		GoGenerator: NewGoGenerator(spec),
+		GoGenerator:           NewGoGenerator(spec),
+		mockGoClientGenerator: NewMockGoClientGenerator(),
 	}
 }
 
-func (gen *goClientGenerator) Generate(path, pckg string, generatePrometheus bool) error {
+func (gen goClientGenerator) clientName() string {
+	return stringutil.UnTitle(identifier.MakeIdentifier(gen.Spec.Info().Title + "Client"))
+}
+
+func (gen *goClientGenerator) Generate(path, pckg string, generatePrometheus bool, generateMocks bool) error {
 
 	file := file.NewFile(pckg)
-	nameOfClient := stringutil.UnTitle(identifier.MakeIdentifier(gen.Spec.Info().Title + "Client"))
 
 	clientMembers := []jen.Code{
 		jen.Id("baseURL").String(),
@@ -46,13 +51,13 @@ func (gen *goClientGenerator) Generate(path, pckg string, generatePrometheus boo
 		clientMembers = append(clientMembers, jen.Id("prometheusHandler").Op("*").Id("PrometheusHandler"))
 	}
 
-	file.Type().Id(nameOfClient).Struct(clientMembers...)
+	file.Type().Id(gen.clientName()).Struct(clientMembers...)
 
 	var clientFuncs []jen.Code
 	operations := make([]*Operation, 0)
 	if err := gen.WalkOperations(func(operation *Operation) error {
 
-		funcDef, err := gen.generateOperation(operation, nameOfClient, generatePrometheus, file)
+		funcDef, err := gen.generateOperation(operation, gen.clientName(), generatePrometheus, file)
 		if err != nil {
 			return errors.Wrapf(err, "error generating code for %s '%v'", operation.Method, operation.Operation)
 		}
@@ -66,13 +71,28 @@ func (gen *goClientGenerator) Generate(path, pckg string, generatePrometheus boo
 		return errors.Wrap(err, "error generating operations")
 	}
 
-	file.Type().Id(strings.Title(nameOfClient)).Interface(clientFuncs...)
-	gen.generateConstructor(nameOfClient, pckg, operations, generatePrometheus, file)
+	file.Type().Id(strings.Title(gen.clientName())).Interface(clientFuncs...)
+	gen.generateConstructor(gen.clientName(), pckg, operations, generatePrometheus, file)
 
 	err := file.Save(path)
 	if err != nil {
 		return errors.Wrapf(err, "error writing generated code to file '%s'", path)
 	}
+
+	if generateMocks {
+		lastSlash := -1
+		for i := len(path)-1; i >= 0 ; i-- {
+			if path[i] == '/' {
+				lastSlash = i
+				break
+			}
+		}
+		err := gen.mockGoClientGenerator.Generate(gen.clientName(), path[:lastSlash])
+		if err != nil {
+			return errors.Wrap(err, "error generating mock client")
+		}
+	}
+
 	return nil
 }
 

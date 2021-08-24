@@ -582,10 +582,10 @@ func (v *Validator) ValidateRequest(request interface{}) (*ValidationErrorsObjec
 }
 
 var (
-	GitCommit string = "66fe4c31c0ea0ca5a9e678605b3842eb0fa35cd1"
-	GitBranch string = "feature/min_and_max_item_validators"
+	GitCommit string = "bb01d9e478238daf06c6cfe127f0167fd4c66d7f"
+	GitBranch string = "feature/mockery_integration"
 	GitTag    string = "v1.0.0"
-	BuildTime string = "Mi 23. Jun 13:48:40 CEST 2021"
+	BuildTime string = "Sa 31. Jul 15:16:43 CEST 2021"
 )
 
 type VersionInfo struct {

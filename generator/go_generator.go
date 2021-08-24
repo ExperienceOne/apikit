@@ -106,7 +106,7 @@ var supportedConsumes []string = []string{
 }
 
 type Generator interface {
-	Generate(path string, pkg string, generatePrometheus bool) error
+	Generate(path string, pkg string, generatePrometheus bool, generateMocks bool) error
 }
 
 func NewGoGenerator(spec *openapi.Spec) *GoGenerator {
