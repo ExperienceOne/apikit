@@ -10,6 +10,19 @@ import (
 	"strings"
 )
 
+type TodoServiceClient interface {
+	DeleteTodos(request *DeleteTodosRequest) (DeleteTodosResponse, error)
+	ListTodos(request *ListTodosRequest) (ListTodosResponse, error)
+	PostTodo(request *PostTodoRequest) (PostTodoResponse, error)
+	DeleteTodo(request *DeleteTodoRequest) (DeleteTodoResponse, error)
+	GetTodo(request *GetTodoRequest) (GetTodoResponse, error)
+	PatchTodo(request *PatchTodoRequest) (PatchTodoResponse, error)
+}
+
+func NewTodoServiceClient(httpClient *http.Client, baseUrl string, options Opts) TodoServiceClient {
+	return &todoServiceClient{httpClient: newHttpClientWrapper(httpClient, baseUrl), baseURL: baseUrl, hooks: options.Hooks, ctx: options.Ctx, xmlMatcher: regexp.MustCompile("^application\\/(.+)xml$")}
+}
+
 type todoServiceClient struct {
 	baseURL    string
 	hooks      HooksClient
@@ -332,17 +345,4 @@ func (client *todoServiceClient) PatchTodo(request *PatchTodoRequest) (PatchTodo
 		return nil, newErrOnUnknownResponseCode(message)
 	}
 	return nil, newErrUnknownResponse(httpResponse.StatusCode)
-}
-
-type TodoServiceClient interface {
-	DeleteTodos(request *DeleteTodosRequest) (DeleteTodosResponse, error)
-	ListTodos(request *ListTodosRequest) (ListTodosResponse, error)
-	PostTodo(request *PostTodoRequest) (PostTodoResponse, error)
-	DeleteTodo(request *DeleteTodoRequest) (DeleteTodoResponse, error)
-	GetTodo(request *GetTodoRequest) (GetTodoResponse, error)
-	PatchTodo(request *PatchTodoRequest) (PatchTodoResponse, error)
-}
-
-func NewTodoServiceClient(httpClient *http.Client, baseUrl string, options Opts) TodoServiceClient {
-	return &todoServiceClient{httpClient: newHttpClientWrapper(httpClient, baseUrl), baseURL: baseUrl, hooks: options.Hooks, ctx: options.Ctx, xmlMatcher: regexp.MustCompile("^application\\/(.+)xml$")}
 }

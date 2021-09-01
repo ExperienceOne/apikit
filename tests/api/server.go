@@ -12,6 +12,52 @@ import (
 	"regexp"
 )
 
+func NewVisAdminServer(options *ServerOpts) *VisAdminServer {
+	serverWrapper := &VisAdminServer{Server: newServer(options), Validator: NewValidation()}
+	serverWrapper.Server.SwaggerSpec = swagger
+	serverWrapper.registerValidators()
+	return serverWrapper
+}
+
+type VisAdminServer struct {
+	*Server
+	Validator                     *Validator
+	getClientsHandler             *getClientsHandlerRoute
+	deleteClientHandler           *deleteClientHandlerRoute
+	getClientHandler              *getClientHandlerRoute
+	createOrUpdateClientHandler   *createOrUpdateClientHandlerRoute
+	getViewsSetsHandler           *getViewsSetsHandlerRoute
+	deleteViewsSetHandler         *deleteViewsSetHandlerRoute
+	getViewsSetHandler            *getViewsSetHandlerRoute
+	activateViewsSetHandler       *activateViewsSetHandlerRoute
+	createOrUpdateViewsSetHandler *createOrUpdateViewsSetHandlerRoute
+	showVehicleInViewHandler      *showVehicleInViewHandlerRoute
+	getPermissionsHandler         *getPermissionsHandlerRoute
+	destroySessionHandler         *destroySessionHandlerRoute
+	getUserInfoHandler            *getUserInfoHandlerRoute
+	createSessionHandler          *createSessionHandlerRoute
+	getUsersHandler               *getUsersHandlerRoute
+	deleteUserHandler             *deleteUserHandlerRoute
+	getUserHandler                *getUserHandlerRoute
+	createOrUpdateUserHandler     *createOrUpdateUserHandlerRoute
+	getBookingHandler             *getBookingHandlerRoute
+	getBookingsHandler            *getBookingsHandlerRoute
+	listModelsHandler             *listModelsHandlerRoute
+	getClassesHandler             *getClassesHandlerRoute
+	codeHandler                   *codeHandlerRoute
+	deleteCustomerSessionHandler  *deleteCustomerSessionHandlerRoute
+	createCustomerSessionHandler  *createCustomerSessionHandlerRoute
+	downloadNestedFileHandler     *downloadNestedFileHandlerRoute
+	downloadImageHandler          *downloadImageHandlerRoute
+	listElementsHandler           *listElementsHandlerRoute
+	fileUploadHandler             *fileUploadHandlerRoute
+	downloadFileHandler           *downloadFileHandlerRoute
+	findByTagsHandler             *findByTagsHandlerRoute
+	genericFileDownloadHandler    *genericFileDownloadHandlerRoute
+	getRentalHandler              *getRentalHandlerRoute
+	getShoesHandler               *getShoesHandlerRoute
+	postUploadHandler             *postUploadHandlerRoute
+}
 type GetClientsHandler func(ctx context.Context, request *GetClientsRequest) GetClientsResponse
 
 type getClientsHandlerRoute struct {
@@ -1853,46 +1899,6 @@ func (server *VisAdminServer) PostUploadHandler(c *routing.Context) error {
 	return nil
 }
 
-type VisAdminServer struct {
-	*Server
-	Validator                     *Validator
-	getClientsHandler             *getClientsHandlerRoute
-	deleteClientHandler           *deleteClientHandlerRoute
-	getClientHandler              *getClientHandlerRoute
-	createOrUpdateClientHandler   *createOrUpdateClientHandlerRoute
-	getViewsSetsHandler           *getViewsSetsHandlerRoute
-	deleteViewsSetHandler         *deleteViewsSetHandlerRoute
-	getViewsSetHandler            *getViewsSetHandlerRoute
-	activateViewsSetHandler       *activateViewsSetHandlerRoute
-	createOrUpdateViewsSetHandler *createOrUpdateViewsSetHandlerRoute
-	showVehicleInViewHandler      *showVehicleInViewHandlerRoute
-	getPermissionsHandler         *getPermissionsHandlerRoute
-	destroySessionHandler         *destroySessionHandlerRoute
-	getUserInfoHandler            *getUserInfoHandlerRoute
-	createSessionHandler          *createSessionHandlerRoute
-	getUsersHandler               *getUsersHandlerRoute
-	deleteUserHandler             *deleteUserHandlerRoute
-	getUserHandler                *getUserHandlerRoute
-	createOrUpdateUserHandler     *createOrUpdateUserHandlerRoute
-	getBookingHandler             *getBookingHandlerRoute
-	getBookingsHandler            *getBookingsHandlerRoute
-	listModelsHandler             *listModelsHandlerRoute
-	getClassesHandler             *getClassesHandlerRoute
-	codeHandler                   *codeHandlerRoute
-	deleteCustomerSessionHandler  *deleteCustomerSessionHandlerRoute
-	createCustomerSessionHandler  *createCustomerSessionHandlerRoute
-	downloadNestedFileHandler     *downloadNestedFileHandlerRoute
-	downloadImageHandler          *downloadImageHandlerRoute
-	listElementsHandler           *listElementsHandlerRoute
-	fileUploadHandler             *fileUploadHandlerRoute
-	downloadFileHandler           *downloadFileHandlerRoute
-	findByTagsHandler             *findByTagsHandlerRoute
-	genericFileDownloadHandler    *genericFileDownloadHandlerRoute
-	getRentalHandler              *getRentalHandlerRoute
-	getShoesHandler               *getShoesHandlerRoute
-	postUploadHandler             *postUploadHandlerRoute
-}
-
 func (server *VisAdminServer) registerValidators() {
 	regex2 := regexp.MustCompile("^([a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12})?$")
 	callbackRegex2 := func(fl validator.FieldLevel) bool {
@@ -1917,13 +1923,6 @@ func (server *VisAdminServer) registerValidators() {
 	}
 	server.Validator.RegisterValidation("regex1", callbackRegex1)
 	server.Validator.RegisterValidation("regex4", callbackRegex1)
-}
-
-func NewVisAdminServer(options *ServerOpts) *VisAdminServer {
-	serverWrapper := &VisAdminServer{Server: newServer(options), Validator: NewValidation()}
-	serverWrapper.Server.SwaggerSpec = swagger
-	serverWrapper.registerValidators()
-	return serverWrapper
 }
 
 func (server *VisAdminServer) Start(port int) error {
