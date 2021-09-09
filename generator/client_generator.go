@@ -39,6 +39,21 @@ func (gen *goClientGenerator) Generate(path, pckg string, generatePrometheus boo
 
 	file := file.NewFile(pckg)
 
+	var clientMethods []jen.Code
+	operations := make([]*Operation, 0)
+	if err := gen.WalkOperations(func(operation *Operation) error {
+		methodDef := jen.Id(strings.Title(operation.ID)).Params(jen.Id("request").Op("*").Id(strings.Title(operation.ID+"Request"))).Params(jen.Id(strings.Title(operation.ID+"Response")), jen.Error())
+		clientMethods = append(clientMethods, methodDef)
+		operations = append(operations, operation)
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "error generating operations")
+	}
+
+	file.Type().Id(strings.Title(gen.clientName())).Interface(clientMethods...)
+
+	gen.generateConstructor(gen.clientName(), pckg, operations, generatePrometheus, file)
+
 	clientMembers := []jen.Code{
 		jen.Id("baseURL").String(),
 		jen.Id("hooks").Id("HooksClient"),
@@ -53,26 +68,16 @@ func (gen *goClientGenerator) Generate(path, pckg string, generatePrometheus boo
 
 	file.Type().Id(gen.clientName()).Struct(clientMembers...)
 
-	var clientFuncs []jen.Code
-	operations := make([]*Operation, 0)
 	if err := gen.WalkOperations(func(operation *Operation) error {
 
-		funcDef, err := gen.generateOperation(operation, gen.clientName(), generatePrometheus, file)
+		err := gen.generateOperation(operation, gen.clientName(), generatePrometheus, file)
 		if err != nil {
 			return errors.Wrapf(err, "error generating code for %s '%v'", operation.Method, operation.Operation)
 		}
-
-		clientFuncs = append(clientFuncs, funcDef)
-		operations = append(operations, operation)
-
 		return nil
-
 	}); err != nil {
 		return errors.Wrap(err, "error generating operations")
 	}
-
-	file.Type().Id(strings.Title(gen.clientName())).Interface(clientFuncs...)
-	gen.generateConstructor(gen.clientName(), pckg, operations, generatePrometheus, file)
 
 	err := file.Save(path)
 	if err != nil {
@@ -133,7 +138,7 @@ func (gen *goClientGenerator) generateConstructor(nameOfClient, nameOfPackage st
 	}).Line()
 }
 
-func (gen *goClientGenerator) generateOperation(operation *Operation, nameOfClient string, generatePrometheus bool, file *file.File) (jen.Code, error) {
+func (gen *goClientGenerator) generateOperation(operation *Operation, nameOfClient string, generatePrometheus bool, file *file.File) (error) {
 
 	if operation.Description != "" {
 		file.Comment(operation.Description)
@@ -145,7 +150,7 @@ func (gen *goClientGenerator) generateOperation(operation *Operation, nameOfClie
 
 	bucket, err := gen.PopulateParametersBucket(NewParameterBucket(operation.HasConsume(ContentTypeApplicationFormUrlencoded)), parameters, operation.Security)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	file.Func().Params(jen.Id("client").Op("*").Id(nameOfClient)).Id(strings.Title(operation.ID)).Params(jen.Id("request").Op("*").Id(strings.Title(operation.ID+"Request"))).Params(jen.Id(strings.Title(operation.ID+"Response")), jen.Error()).BlockFunc(func(stmts *jen.Group) {
@@ -400,7 +405,7 @@ func (gen *goClientGenerator) generateOperation(operation *Operation, nameOfClie
 
 		stmts.Return(jen.Nil(), jen.Id("newErrUnknownResponse").Call(jen.Id("httpResponse").Dot("StatusCode")))
 	}).Line()
-	return jen.Id(strings.Title(operation.ID)).Params(jen.Id("request").Op("*").Id(strings.Title(operation.ID+"Request"))).Params(jen.Id(strings.Title(operation.ID+"Response")), jen.Error()), nil
+	return nil
 }
 
 func (gen *goClientGenerator) generateQueryString(params []*spec.Parameter, id string, lastIndex int, stmts *jen.Group) int {

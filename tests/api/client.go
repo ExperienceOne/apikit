@@ -12,6 +12,48 @@ import (
 	"strings"
 )
 
+type VisAdminClient interface {
+	GetClients(request *GetClientsRequest) (GetClientsResponse, error)
+	DeleteClient(request *DeleteClientRequest) (DeleteClientResponse, error)
+	GetClient(request *GetClientRequest) (GetClientResponse, error)
+	CreateOrUpdateClient(request *CreateOrUpdateClientRequest) (CreateOrUpdateClientResponse, error)
+	GetViewsSets(request *GetViewsSetsRequest) (GetViewsSetsResponse, error)
+	DeleteViewsSet(request *DeleteViewsSetRequest) (DeleteViewsSetResponse, error)
+	GetViewsSet(request *GetViewsSetRequest) (GetViewsSetResponse, error)
+	ActivateViewsSet(request *ActivateViewsSetRequest) (ActivateViewsSetResponse, error)
+	CreateOrUpdateViewsSet(request *CreateOrUpdateViewsSetRequest) (CreateOrUpdateViewsSetResponse, error)
+	ShowVehicleInView(request *ShowVehicleInViewRequest) (ShowVehicleInViewResponse, error)
+	GetPermissions(request *GetPermissionsRequest) (GetPermissionsResponse, error)
+	DestroySession(request *DestroySessionRequest) (DestroySessionResponse, error)
+	GetUserInfo(request *GetUserInfoRequest) (GetUserInfoResponse, error)
+	CreateSession(request *CreateSessionRequest) (CreateSessionResponse, error)
+	GetUsers(request *GetUsersRequest) (GetUsersResponse, error)
+	DeleteUser(request *DeleteUserRequest) (DeleteUserResponse, error)
+	GetUser(request *GetUserRequest) (GetUserResponse, error)
+	CreateOrUpdateUser(request *CreateOrUpdateUserRequest) (CreateOrUpdateUserResponse, error)
+	GetBooking(request *GetBookingRequest) (GetBookingResponse, error)
+	GetBookings(request *GetBookingsRequest) (GetBookingsResponse, error)
+	ListModels(request *ListModelsRequest) (ListModelsResponse, error)
+	GetClasses(request *GetClassesRequest) (GetClassesResponse, error)
+	Code(request *CodeRequest) (CodeResponse, error)
+	DeleteCustomerSession(request *DeleteCustomerSessionRequest) (DeleteCustomerSessionResponse, error)
+	CreateCustomerSession(request *CreateCustomerSessionRequest) (CreateCustomerSessionResponse, error)
+	DownloadNestedFile(request *DownloadNestedFileRequest) (DownloadNestedFileResponse, error)
+	DownloadImage(request *DownloadImageRequest) (DownloadImageResponse, error)
+	ListElements(request *ListElementsRequest) (ListElementsResponse, error)
+	FileUpload(request *FileUploadRequest) (FileUploadResponse, error)
+	DownloadFile(request *DownloadFileRequest) (DownloadFileResponse, error)
+	FindByTags(request *FindByTagsRequest) (FindByTagsResponse, error)
+	GenericFileDownload(request *GenericFileDownloadRequest) (GenericFileDownloadResponse, error)
+	GetRental(request *GetRentalRequest) (GetRentalResponse, error)
+	GetShoes(request *GetShoesRequest) (GetShoesResponse, error)
+	PostUpload(request *PostUploadRequest) (PostUploadResponse, error)
+}
+
+func NewVisAdminClient(httpClient *http.Client, baseUrl string, options Opts) VisAdminClient {
+	return &visAdminClient{httpClient: newHttpClientWrapper(httpClient, baseUrl), baseURL: baseUrl, hooks: options.Hooks, ctx: options.Ctx, xmlMatcher: regexp.MustCompile("^application\\/(.+)xml$")}
+}
+
 type visAdminClient struct {
 	baseURL    string
 	hooks      HooksClient
@@ -2377,46 +2419,4 @@ func (client *visAdminClient) PostUpload(request *PostUploadRequest) (PostUpload
 		return nil, newErrOnUnknownResponseCode(message)
 	}
 	return nil, newErrUnknownResponse(httpResponse.StatusCode)
-}
-
-type VisAdminClient interface {
-	GetClients(request *GetClientsRequest) (GetClientsResponse, error)
-	DeleteClient(request *DeleteClientRequest) (DeleteClientResponse, error)
-	GetClient(request *GetClientRequest) (GetClientResponse, error)
-	CreateOrUpdateClient(request *CreateOrUpdateClientRequest) (CreateOrUpdateClientResponse, error)
-	GetViewsSets(request *GetViewsSetsRequest) (GetViewsSetsResponse, error)
-	DeleteViewsSet(request *DeleteViewsSetRequest) (DeleteViewsSetResponse, error)
-	GetViewsSet(request *GetViewsSetRequest) (GetViewsSetResponse, error)
-	ActivateViewsSet(request *ActivateViewsSetRequest) (ActivateViewsSetResponse, error)
-	CreateOrUpdateViewsSet(request *CreateOrUpdateViewsSetRequest) (CreateOrUpdateViewsSetResponse, error)
-	ShowVehicleInView(request *ShowVehicleInViewRequest) (ShowVehicleInViewResponse, error)
-	GetPermissions(request *GetPermissionsRequest) (GetPermissionsResponse, error)
-	DestroySession(request *DestroySessionRequest) (DestroySessionResponse, error)
-	GetUserInfo(request *GetUserInfoRequest) (GetUserInfoResponse, error)
-	CreateSession(request *CreateSessionRequest) (CreateSessionResponse, error)
-	GetUsers(request *GetUsersRequest) (GetUsersResponse, error)
-	DeleteUser(request *DeleteUserRequest) (DeleteUserResponse, error)
-	GetUser(request *GetUserRequest) (GetUserResponse, error)
-	CreateOrUpdateUser(request *CreateOrUpdateUserRequest) (CreateOrUpdateUserResponse, error)
-	GetBooking(request *GetBookingRequest) (GetBookingResponse, error)
-	GetBookings(request *GetBookingsRequest) (GetBookingsResponse, error)
-	ListModels(request *ListModelsRequest) (ListModelsResponse, error)
-	GetClasses(request *GetClassesRequest) (GetClassesResponse, error)
-	Code(request *CodeRequest) (CodeResponse, error)
-	DeleteCustomerSession(request *DeleteCustomerSessionRequest) (DeleteCustomerSessionResponse, error)
-	CreateCustomerSession(request *CreateCustomerSessionRequest) (CreateCustomerSessionResponse, error)
-	DownloadNestedFile(request *DownloadNestedFileRequest) (DownloadNestedFileResponse, error)
-	DownloadImage(request *DownloadImageRequest) (DownloadImageResponse, error)
-	ListElements(request *ListElementsRequest) (ListElementsResponse, error)
-	FileUpload(request *FileUploadRequest) (FileUploadResponse, error)
-	DownloadFile(request *DownloadFileRequest) (DownloadFileResponse, error)
-	FindByTags(request *FindByTagsRequest) (FindByTagsResponse, error)
-	GenericFileDownload(request *GenericFileDownloadRequest) (GenericFileDownloadResponse, error)
-	GetRental(request *GetRentalRequest) (GetRentalResponse, error)
-	GetShoes(request *GetShoesRequest) (GetShoesResponse, error)
-	PostUpload(request *PostUploadRequest) (PostUploadResponse, error)
-}
-
-func NewVisAdminClient(httpClient *http.Client, baseUrl string, options Opts) VisAdminClient {
-	return &visAdminClient{httpClient: newHttpClientWrapper(httpClient, baseUrl), baseURL: baseUrl, hooks: options.Hooks, ctx: options.Ctx, xmlMatcher: regexp.MustCompile("^application\\/(.+)xml$")}
 }

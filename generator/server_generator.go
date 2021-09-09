@@ -38,8 +38,6 @@ func (gen *goServerGenerator) Generate(path, pckg string, validators ValidatorMa
 	file := file.NewFile(pckg)
 	gen.addImports(additionalServerImports, file)
 
-	nameOfServer := strings.Title(identifier.MakeIdentifier(gen.Spec.Info().Title + "Server"))
-
 	serverFields := []jen.Code{
 		jen.Op("*").Id("Server"),
 		jen.Id("Validator").Op("*").Id("Validator"),
@@ -50,35 +48,18 @@ func (gen *goServerGenerator) Generate(path, pckg string, validators ValidatorMa
 	}
 
 	operations := make([]*Operation, 0)
+
 	if err := gen.WalkOperations(func(operation *Operation) error {
-
-		parameters := make([]spec.Parameter, 0)
-		parameters = append(parameters, operation.Path.Parameters...)
-		parameters = append(parameters, operation.Parameters...)
-
-		bucket := NewParameterBucket(operation.HasConsume(ContentTypeApplicationFormUrlencoded))
-		bucket, err := gen.PopulateParametersBucket(bucket, parameters, operation.Security)
-		if err != nil {
-			return errors.Wrapf(err, "error creating parameters bucket for %s '%v'", operation.Method, operation.Path)
-		}
-
-		field, err := gen.generateOperation(operation, bucket, nameOfServer, file)
-		if err != nil {
-			return errors.Wrapf(err, "error generating code for %s '%s'", operation.Method, operation.Route)
-		}
-		serverFields = append(serverFields, field)
 		operations = append(operations, operation)
-
-		gen.generateHandler(operation, bucket, nameOfServer, generatePrometheus, file)
-
+		handlerName := stringutil.UnTitle(strings.Title(operation.ID + "Handler"))
+		serverFields = append(serverFields, jen.Id(handlerName).Op("*").Id(handlerName + "Route"))
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "error generating operations and handlers")
+		return errors.Wrap(err, "error generating operations")
 	}
 
-	file.Type().Id(nameOfServer).Struct(serverFields...)
-	gen.generateValidators(nameOfServer, validators, file)
-
+	nameOfServer := strings.Title(identifier.MakeIdentifier(gen.Spec.Info().Title + "Server"))
+	
 	file.Func().Id("New" + nameOfServer).Params(jen.Id("options").Op("*").Id("ServerOpts")).Op("*").Id(nameOfServer).BlockFunc(func(stmts *jen.Group) {
 
 		if generatePrometheus {
@@ -107,6 +88,34 @@ func (gen *goServerGenerator) Generate(path, pckg string, validators ValidatorMa
 		stmts.Id("serverWrapper").Dot("registerValidators").Call()
 		stmts.Return(jen.Id("serverWrapper"))
 	}).Line()
+
+	file.Type().Id(nameOfServer).Struct(serverFields...)
+
+	if err := gen.WalkOperations(func(operation *Operation) error {
+
+		parameters := make([]spec.Parameter, 0)
+		parameters = append(parameters, operation.Path.Parameters...)
+		parameters = append(parameters, operation.Parameters...)
+
+		bucket := NewParameterBucket(operation.HasConsume(ContentTypeApplicationFormUrlencoded))
+		bucket, err := gen.PopulateParametersBucket(bucket, parameters, operation.Security)
+		if err != nil {
+			return errors.Wrapf(err, "error creating parameters bucket for %s '%v'", operation.Method, operation.Path)
+		}
+
+		err = gen.generateOperation(operation, bucket, nameOfServer, file)
+		if err != nil {
+			return errors.Wrapf(err, "error generating code for %s '%s'", operation.Method, operation.Route)
+		}
+
+		gen.generateHandler(operation, bucket, nameOfServer, generatePrometheus, file)
+
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "error generating operations and handlers")
+	}
+
+	gen.generateValidators(nameOfServer, validators, file)
 
 	file.Func().Params(jen.Id("server").Op("*").Id(nameOfServer)).Id("Start").Params(jen.Id("port").Int()).Error().BlockFunc(func(stmts *jen.Group) {
 
@@ -176,7 +185,7 @@ func (gen *goServerGenerator) generateValidator(regex string, tags []string, stm
 	}
 }
 
-func (gen *goServerGenerator) generateOperation(operation *Operation, parametersBucket *ParametersBucket, nameOfServer string, file *file.File) (jen.Code, error) {
+func (gen *goServerGenerator) generateOperation(operation *Operation, parametersBucket *ParametersBucket, nameOfServer string, file *file.File) (error) {
 
 	nameOfHandler := strings.Title(operation.ID + "Handler")
 
@@ -202,7 +211,7 @@ func (gen *goServerGenerator) generateOperation(operation *Operation, parameters
 		),
 	).Line()
 
-	return jen.Id(stringutil.UnTitle(nameOfHandler)).Op("*").Id(stringutil.UnTitle(nameOfHandler) + "Route"), nil
+	return nil
 }
 
 func (gen *goServerGenerator) generateHandler(operation *Operation, parametersBucket *ParametersBucket, nameOfServer string, generatePrometheus bool, file *file.File) {

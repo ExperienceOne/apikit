@@ -7,6 +7,23 @@ import (
 	"net/http"
 )
 
+func NewTodoServiceServer(options *ServerOpts) *TodoServiceServer {
+	serverWrapper := &TodoServiceServer{Server: newServer(options), Validator: NewValidation()}
+	serverWrapper.Server.SwaggerSpec = swagger
+	serverWrapper.registerValidators()
+	return serverWrapper
+}
+
+type TodoServiceServer struct {
+	*Server
+	Validator          *Validator
+	deleteTodosHandler *deleteTodosHandlerRoute
+	listTodosHandler   *listTodosHandlerRoute
+	postTodoHandler    *postTodoHandlerRoute
+	deleteTodoHandler  *deleteTodoHandlerRoute
+	getTodoHandler     *getTodoHandlerRoute
+	patchTodoHandler   *patchTodoHandlerRoute
+}
 type DeleteTodosHandler func(ctx context.Context, request *DeleteTodosRequest) DeleteTodosResponse
 
 type deleteTodosHandlerRoute struct {
@@ -273,25 +290,7 @@ func (server *TodoServiceServer) PatchTodoHandler(c *routing.Context) error {
 	return nil
 }
 
-type TodoServiceServer struct {
-	*Server
-	Validator          *Validator
-	deleteTodosHandler *deleteTodosHandlerRoute
-	listTodosHandler   *listTodosHandlerRoute
-	postTodoHandler    *postTodoHandlerRoute
-	deleteTodoHandler  *deleteTodoHandlerRoute
-	getTodoHandler     *getTodoHandlerRoute
-	patchTodoHandler   *patchTodoHandlerRoute
-}
-
 func (server *TodoServiceServer) registerValidators() {}
-
-func NewTodoServiceServer(options *ServerOpts) *TodoServiceServer {
-	serverWrapper := &TodoServiceServer{Server: newServer(options), Validator: NewValidation()}
-	serverWrapper.Server.SwaggerSpec = swagger
-	serverWrapper.registerValidators()
-	return serverWrapper
-}
 
 func (server *TodoServiceServer) Start(port int) error {
 	routes := []RouteDescription{}
