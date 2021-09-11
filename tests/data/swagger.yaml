@@ -692,9 +692,11 @@ paths:
       - name: "_page"
         in: "query"
         type: "integer"
+        default: 1
       - name: "_perPage"
         in: "query"
         type: "integer"
+        default: 10
       responses:
         200:
           description: "Status 200"

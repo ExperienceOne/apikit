@@ -29,7 +29,7 @@ const (
 	ByteType    = "byte"
 )
 
-func convertSimpleType(typ string, format string) string {
+func ConvertSimpleType(typ string, format string) string {
 
 	var goType string
 
@@ -218,7 +218,7 @@ func FromSimpleSchema(name string, schema *spec.SimpleSchema, required bool, val
 		format = schema.Items.Format
 	}
 
-	goType := convertSimpleType(typ, format)
+	goType := ConvertSimpleType(typ, format)
 	if goType == "" {
 		return nil, errors.Errorf("unknown simple type '%s' / '%s'", typ, format)
 	}
@@ -302,7 +302,7 @@ func FromSchema(name string, schema *spec.Schema, required bool, findSchemaFunc 
 
 		tags := generateIntegerRestriction(schema.Minimum, schema.Maximum, schema.ExclusiveMinimum, schema.ExclusiveMaximum)
 
-		return New(Simple, name, convertSimpleType("integer", schema.Format), required, false, tags...), nil
+		return New(Simple, name, ConvertSimpleType("integer", schema.Format), required, false, tags...), nil
 
 	} else if schema.Type.Contains("number") {
 

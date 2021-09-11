@@ -6,6 +6,8 @@ import (
 	"github.com/ExperienceOne/apikit/generator/identifier"
 	"github.com/ExperienceOne/apikit/generator/openapi"
 	"github.com/ExperienceOne/apikit/generator/stringutil"
+	"github.com/ExperienceOne/apikit/generator/types"
+	"github.com/ExperienceOne/apikit/internal/framework/parameter"
 	"net/http"
 	"sort"
 	"strconv"
@@ -403,7 +405,16 @@ func (gen *goServerGenerator) generateHandler(operation *Operation, parametersBu
 					}
 				})
 
-				if param.Required {
+				defaultValue := parameter.ToString(param.Default)
+				if defaultValue != "" && !param.Required {
+					typeDef := types.ConvertSimpleType(param.Type, param.Format)
+					parameterMemberNonePointer := jen.Op("*").Id("request").Dot(strings.Title(identifier.MakeIdentifier(param.Name)))
+					parameterMemberVar := jen.Id("request").Dot(strings.Title(identifier.MakeIdentifier(param.Name)))
+					group.Else().BlockFunc(func(stmts *jen.Group) {
+						stmts.Add(parameterMemberVar.Op("=").Id("new").Call(jen.Id(typeDef)))
+						stmts.Add(parameterMemberNonePointer.Op("=").Id(defaultValue))
+					})
+				}else if param.Required {
 					group.Else().BlockFunc(func(stmts *jen.Group) {
 						stmts.Return(jen.Id("NewHTTPStatusCodeError").Call(jen.Qual("net/http", "StatusBadRequest")))
 					})
