@@ -80,6 +80,24 @@ func primitiveToString(param reflect.Value) string {
 	return value
 }
 
+func IsPrimitiveType(param interface{}) bool {
+
+	switch param.(type) {
+	case uint, uint8, uint16, uint32, uint64:
+		return true
+	case int, int8, int16, int32, int64:
+		return true
+	case float32, float64:
+		return true
+	case string:
+		return true
+	case bool:
+		return true
+	}
+
+	return false
+}
+
 func sliceToString(param reflect.Value) string {
 
 	slice := make([]string, param.Len())
@@ -582,10 +600,10 @@ func (v *Validator) ValidateRequest(request interface{}) (*ValidationErrorsObjec
 }
 
 var (
-	GitCommit string = "c57d05b301b27a9789080b2e7844b7ab070a2e41"
-	GitBranch string = "master"
+	GitCommit string = "dffa898fe03df4e73008d79c19e01967bdbeabb1"
+	GitBranch string = "feature-query-default-values"
 	GitTag    string = "v1.0.0"
-	BuildTime string = "Sa 11. Sep 12:14:02 CEST 2021"
+	BuildTime string = "So 12. Sep 17:26:18 CEST 2021"
 )
 
 type VersionInfo struct {

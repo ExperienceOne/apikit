@@ -54,14 +54,14 @@ func (gen *goServerGenerator) Generate(path, pckg string, validators ValidatorMa
 	if err := gen.WalkOperations(func(operation *Operation) error {
 		operations = append(operations, operation)
 		handlerName := stringutil.UnTitle(strings.Title(operation.ID + "Handler"))
-		serverFields = append(serverFields, jen.Id(handlerName).Op("*").Id(handlerName + "Route"))
+		serverFields = append(serverFields, jen.Id(handlerName).Op("*").Id(handlerName+"Route"))
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "error generating operations")
 	}
 
 	nameOfServer := strings.Title(identifier.MakeIdentifier(gen.Spec.Info().Title + "Server"))
-	
+
 	file.Func().Id("New" + nameOfServer).Params(jen.Id("options").Op("*").Id("ServerOpts")).Op("*").Id(nameOfServer).BlockFunc(func(stmts *jen.Group) {
 
 		if generatePrometheus {
@@ -187,7 +187,7 @@ func (gen *goServerGenerator) generateValidator(regex string, tags []string, stm
 	}
 }
 
-func (gen *goServerGenerator) generateOperation(operation *Operation, parametersBucket *ParametersBucket, nameOfServer string, file *file.File) (error) {
+func (gen *goServerGenerator) generateOperation(operation *Operation, parametersBucket *ParametersBucket, nameOfServer string, file *file.File) error {
 
 	nameOfHandler := strings.Title(operation.ID + "Handler")
 
@@ -404,9 +404,10 @@ func (gen *goServerGenerator) generateHandler(operation *Operation, parametersBu
 						}
 					}
 				})
-
-				defaultValue := parameter.ToString(param.Default)
-				if defaultValue != "" && !param.Required {
+				
+				// Generate default setters for primitive types, objects and array are not yet supported
+				if types.IsPrimitiveSimpleType(param.Type, param.Format) && parameter.IsPrimitiveType(param.Default) && !param.Required {
+					defaultValue := parameter.ToString(param.Default)
 					typeDef := types.ConvertSimpleType(param.Type, param.Format)
 					parameterMemberNonePointer := jen.Op("*").Id("request").Dot(strings.Title(identifier.MakeIdentifier(param.Name)))
 					parameterMemberVar := jen.Id("request").Dot(strings.Title(identifier.MakeIdentifier(param.Name)))
@@ -414,7 +415,7 @@ func (gen *goServerGenerator) generateHandler(operation *Operation, parametersBu
 						stmts.Add(parameterMemberVar.Op("=").Id("new").Call(jen.Id(typeDef)))
 						stmts.Add(parameterMemberNonePointer.Op("=").Id(defaultValue))
 					})
-				}else if param.Required {
+				} else if param.Required {
 					group.Else().BlockFunc(func(stmts *jen.Group) {
 						stmts.Return(jen.Id("NewHTTPStatusCodeError").Call(jen.Qual("net/http", "StatusBadRequest")))
 					})

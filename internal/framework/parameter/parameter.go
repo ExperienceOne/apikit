@@ -33,6 +33,25 @@ func primitiveToString(param reflect.Value) string {
 	return value
 }
 
+// IsPrimitiveType verifies parameter type falls into the primitive type category
+func IsPrimitiveType(param interface{}) bool {
+
+	switch param.(type) {
+	case uint, uint8, uint16, uint32, uint64:
+		return true
+	case int, int8, int16, int32, int64:
+		return true
+	case float32, float64:
+		return true
+	case string:
+		return true
+	case bool:
+		return true
+	}
+
+	return false
+}
+
 // sliceToString converts a given slice value into an string
 func sliceToString(param reflect.Value) string {
 

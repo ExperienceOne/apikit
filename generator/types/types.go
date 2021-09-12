@@ -52,6 +52,25 @@ func ConvertSimpleType(typ string, format string) string {
 	return goType
 }
 
+func IsPrimitiveSimpleType(typ, format string) bool {
+
+	if typ == "string" {
+		return true
+	} else if typ == "boolean" {
+		return true
+	} else if typ == "number" || typ == "float" || typ == "double" {
+		return true
+	} else if typ == "integer" && format == "int64" {
+		return true
+	} else if typ == "integer" && format == "int32" {
+		return true
+	} else if typ == "integer" {
+		return true
+	}
+
+	return false
+}
+
 type Composit int
 
 const (
