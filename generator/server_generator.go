@@ -405,8 +405,8 @@ func (gen *goServerGenerator) generateHandler(operation *Operation, parametersBu
 					}
 				})
 				
-				// Generate default setters for primitive types, objects and array are not yet supported
-				if types.IsPrimitiveSimpleType(param.Type, param.Format) && parameter.IsPrimitiveType(param.Default) && !param.Required {
+				// Generate default setters for number primitive types, objects and array are not yet supported
+				if types.MatchTypes(param.Default, param.Type, param.Format) && !param.Required {
 					defaultValue := parameter.ToString(param.Default)
 					typeDef := types.ConvertSimpleType(param.Type, param.Format)
 					parameterMemberNonePointer := jen.Op("*").Id("request").Dot(strings.Title(identifier.MakeIdentifier(param.Name)))
