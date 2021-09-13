@@ -59,15 +59,18 @@ func MatchTypes(param interface{}, typ, format string) bool {
 			return true
 		}
 	} else if typ == "integer" && format == "int64" {
-		if _, ok := param.(float64); ok {
+		v, ok := param.(float64)
+		if ok && float64(int64(v)) == v {
 			return true
 		}
 	} else if typ == "integer" && format == "int32" {
-		if _, ok := param.(float64); ok {
+		v, ok := param.(float64)
+		if ok && float64(int32(v)) == v {
 			return true
 		}
 	} else if typ == "integer" {
-		if _, ok := param.(float64); ok {
+		v, ok := param.(float64)
+		if ok && float64(int(v)) == v {
 			return true
 		}
 	}
