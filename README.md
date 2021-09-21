@@ -445,6 +445,7 @@ The array query parameters validation also supports the `minItems` and `maxItems
          type: string
 ```
 
+
 ### Content types
 
 The client needs to send the correct content type header matching the consumes attribute in the OpenAPIv2 definition. If not, the server responds with a `415 Unsupported media type` error.
@@ -491,6 +492,25 @@ type (
     DriveConcept         DriveConcept         `json:"driveConcept" bson:"driveConcept"`
   }
 )
+```
+
+## URL query parameter defaults
+
+Set URL query parameter defaults for integer and float type based values. 
+
+Note: All other type default values are ignored during code generation. 
+We may add support for new types in the future.
+
+```yaml
+     parameters:
+      - name: "_page"
+        in: "query"
+        type: "integer"
+        default: 1
+      - name: "_perPage"
+        in: "query"
+        type: "integer"
+        default: 10
 ```
 
 ## Advanced features

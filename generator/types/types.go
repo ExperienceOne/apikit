@@ -29,7 +29,7 @@ const (
 	ByteType    = "byte"
 )
 
-func convertSimpleType(typ string, format string) string {
+func ConvertSimpleType(typ string, format string) string {
 
 	var goType string
 
@@ -50,6 +50,31 @@ func convertSimpleType(typ string, format string) string {
 	}
 
 	return goType
+}
+
+// MatchTypes verifies types falls into the same primitive type category
+func MatchTypes(param interface{}, typ, format string) bool {
+	if typ == "number" || typ == "float" || typ == "double" {
+		if _, ok := param.(float64); ok {
+			return true
+		}
+	} else if typ == "integer" && format == "int64" {
+		v, ok := param.(float64)
+		if ok && float64(int64(v)) == v {
+			return true
+		}
+	} else if typ == "integer" && format == "int32" {
+		v, ok := param.(float64)
+		if ok && float64(int32(v)) == v {
+			return true
+		}
+	} else if typ == "integer" {
+		v, ok := param.(float64)
+		if ok && float64(int(v)) == v {
+			return true
+		}
+	}
+	return false
 }
 
 type Composit int
@@ -218,7 +243,7 @@ func FromSimpleSchema(name string, schema *spec.SimpleSchema, required bool, val
 		format = schema.Items.Format
 	}
 
-	goType := convertSimpleType(typ, format)
+	goType := ConvertSimpleType(typ, format)
 	if goType == "" {
 		return nil, errors.Errorf("unknown simple type '%s' / '%s'", typ, format)
 	}
@@ -302,7 +327,7 @@ func FromSchema(name string, schema *spec.Schema, required bool, findSchemaFunc 
 
 		tags := generateIntegerRestriction(schema.Minimum, schema.Maximum, schema.ExclusiveMinimum, schema.ExclusiveMaximum)
 
-		return New(Simple, name, convertSimpleType("integer", schema.Format), required, false, tags...), nil
+		return New(Simple, name, ConvertSimpleType("integer", schema.Format), required, false, tags...), nil
 
 	} else if schema.Type.Contains("number") {
 

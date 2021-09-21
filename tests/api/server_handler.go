@@ -276,6 +276,17 @@ func GetClasses(ctx context.Context, request *GetClassesRequest) GetClassesRespo
 }
 
 func ListElement(ctx context.Context, request *ListElementsRequest) ListElementsResponse {
+
+	if *request.Page != 1 {
+		log.Println("request.Page is bad")
+		return &ListElements500Response{}
+	}
+
+	if *request.PerPage != 10 {
+		log.Println("request.PerPage is bad")
+		return &ListElements500Response{}
+	}
+
 	return &ListElements200Response{
 		XTotalCount: 5,
 	}

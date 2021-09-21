@@ -642,7 +642,7 @@ func TestListElements(t *testing.T) {
 			t.Error(fmt.Sprintf("total count is bad (%d)", resp200.XTotalCount))
 		}
 	} else {
-		t.Fatal(fmt.Sprintf("resp is bad (%v)", resp))
+		t.Fatal(fmt.Sprintf("resp is bad (%#v)", resp))
 	}
 }
 
