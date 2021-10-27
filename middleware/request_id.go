@@ -2,24 +2,11 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"github.com/ExperienceOne/apikit/internal/framework/xserver"
+	"github.com/ExperienceOne/apikit/pkg/requestid"
 	"github.com/go-ozzo/ozzo-routing"
-	"github.com/gofrs/uuid"
 	"net/http"
-	"sync/atomic"
 )
-
-// requestIdCxtKey key type used to store a request ID.
-type requestIdCxtKey int
-
-// RequestIdKey is the key to store an unique request ID in a request context.
-const RequestIdKey requestIdCxtKey = 0
-
-const RequestIdHttpHeader = "X-Request-ID"
-
-// incrementable fallback ID in case of UUID generation failure
-var requestIdFallback uint64
 
 // RequestID creates a middleware which creates a request ID and store the ID in the request context.
 func RequestID() xserver.Middleware {
@@ -37,31 +24,10 @@ func RequestID() xserver.Middleware {
 
 func contextWithRequestID(ctx context.Context, req *http.Request) context.Context {
 
-	reqID := req.Header.Get(RequestIdHttpHeader)
+	reqID := req.Header.Get(requestid.RequestIdHttpHeader)
 	if reqID == "" {
-		u2, err := uuid.NewV4()
-		if err != nil {
-			newFallbackId := atomic.AddUint64(&requestIdFallback, 1)
-			reqID = fmt.Sprint(newFallbackId)
-		} else {
-			reqID = u2.String()
-		}
+		reqID = requestid.Generate()
 	}
 
-	return context.WithValue(ctx, RequestIdKey, reqID)
-}
-
-// GetRequestID returns a request ID for the given context; otherwise an empty string
-// will be returned if the context is nil or the request ID can not be found.
-func GetRequestID(ctx context.Context) string {
-
-	if ctx == nil {
-		return ""
-	}
-
-	if reqID, ok := ctx.Value(RequestIdKey).(string); ok {
-		return reqID
-	}
-
-	return ""
+	return context.WithValue(ctx, requestid.RequestIdKey, reqID)
 }

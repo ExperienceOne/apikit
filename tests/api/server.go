@@ -1913,7 +1913,7 @@ func (server *VisAdminServer) PostUploadHandler(c *routing.Context) error {
 }
 
 func (server *VisAdminServer) registerValidators() {
-	regex2 := regexp.MustCompile("^([a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12})?$")
+	regex2 := regexp.MustCompile("^([a-f0-9]{8}-[a-f0-9]{4}-[1-5]{1}[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12})?$")
 	callbackRegex2 := func(fl validator.FieldLevel) bool {
 		return regex2.MatchString(fl.Field().String())
 	}

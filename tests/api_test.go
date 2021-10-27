@@ -3,6 +3,8 @@ package tests
 import (
 	"bytes"
 	"fmt"
+	"github.com/ExperienceOne/apikit/middleware"
+	"github.com/ExperienceOne/apikit/roundtripper"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -32,6 +34,7 @@ var testServerWrapper *api.VisAdminServer
 func TestMain(m *testing.M) {
 
 	middlewares := []api.Middleware{
+		{Handler: middleware.RequestID().Handler},
 		{Handler: api.RouterPanicMiddleware()},
 		{Handler: api.RouterPopulateContextMiddleware()},
 	}
@@ -86,6 +89,8 @@ func TestMain(m *testing.M) {
 		Transport: lt,
 		Timeout:   time.Second * 3,
 	}
+	c = roundtripper.Use(c, roundtripper.RequestID())
+
 	BadRequestVisAdminClient = api.NewVisAdminClient(c, "http://localhost:4567", opts)
 
 	// setup a fake client and server to check the raw request and response object

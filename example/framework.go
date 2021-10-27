@@ -582,10 +582,10 @@ func (v *Validator) ValidateRequest(request interface{}) (*ValidationErrorsObjec
 }
 
 var (
-	GitCommit string = "a8719e7d76227cf28d355fef25f8f275e6d51621"
-	GitBranch string = "master"
+	GitCommit string = "0f410ab08724ac9dae51e4558de0c01638cfc8ff"
+	GitBranch string = "HEAD"
 	GitTag    string = "v1.0.0"
-	BuildTime string = "Wed 27 Oct 2021 22:16:50 BST"
+	BuildTime string = "Sa 6. Nov 15:03:27 CET 2021"
 )
 
 type VersionInfo struct {
