@@ -582,10 +582,10 @@ func (v *Validator) ValidateRequest(request interface{}) (*ValidationErrorsObjec
 }
 
 var (
-	GitCommit string = "8bf73b60aa3f094512524ebd8d5fe96318cbed59"
-	GitBranch string = "feature-query-default-values"
+	GitCommit string = "a8719e7d76227cf28d355fef25f8f275e6d51621"
+	GitBranch string = "master"
 	GitTag    string = "v1.0.0"
-	BuildTime string = "Mo 13. Sep 14:55:38 CEST 2021"
+	BuildTime string = "Wed 27 Oct 2021 22:16:50 BST"
 )
 
 type VersionInfo struct {
@@ -968,6 +968,7 @@ type (
 		ErrorHandler ErrorHandler
 		Middleware   []Middleware
 		OnStart      func(router *routing.Router)
+		Prefix       string
 	}
 
 	Middleware struct {
@@ -991,6 +992,7 @@ type (
 		after       []routing.Handler
 		before      []routing.Handler
 		SwaggerSpec string
+		Prefix      string
 	}
 )
 
@@ -1010,10 +1012,15 @@ func newServer(opts *ServerOpts) *Server {
 
 	server := &Server{
 		ErrorLogger: opts.ErrorHandler,
+		Prefix:      "",
 	}
 
 	if opts.OnStart != nil {
 		server.OnStart = opts.OnStart
+	}
+
+	if opts.Prefix != "" {
+		server.Prefix = opts.Prefix
 	}
 
 	if len(opts.Middleware) != 0 {
@@ -1055,14 +1062,23 @@ func (server *Server) makeRouter(routes []RouteDescription) (*routing.Router, er
 	if server.before != nil {
 		beforeStack = append(beforeStack, server.before...)
 	}
-	router.Use(beforeStack...)
+
+	prefix := server.Prefix
+
+	if prefix == "/" {
+		prefix = ""
+	}
+
+	rg := router.Group(prefix)
+
+	rg.Use(beforeStack...)
 
 	var afterStack []routing.Handler
 	if server.after != nil {
 		afterStack = append(afterStack, server.after...)
 	}
 
-	router.Get("/spec", func(c *routing.Context) error {
+	rg.Get("/spec", func(c *routing.Context) error {
 		return c.Write(server.SwaggerSpec)
 	})
 
@@ -1086,7 +1102,7 @@ func (server *Server) makeRouter(routes []RouteDescription) (*routing.Router, er
 		handler = append(handler, after...)
 		handler = append(handler, afterStack...)
 
-		router.To(route.Method, route.Path, handler...)
+		rg.To(route.Method, route.Path, handler...)
 	}
 
 	return router, nil

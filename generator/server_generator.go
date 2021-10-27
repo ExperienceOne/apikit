@@ -77,6 +77,18 @@ func (gen *goServerGenerator) Generate(path, pckg string, validators ValidatorMa
 			stmts.Line()
 		}
 
+		basePath := gen.Spec.Spec.BasePath
+
+		if basePath == "/" {
+			basePath = ""
+		}
+
+		stmts.If(jen.Id("options").Op("==").Nil()).Block(
+			jen.Id("options").Op("=").Op("&").Id("ServerOpts").Block(),
+		)
+
+		stmts.If(jen.Id("options").Dot("Prefix").Op("==").Lit("")).Block(jen.Id("options").Dot("Prefix").Op("=").Lit(basePath)).Line()
+
 		wrapperArgs := []jen.Code{
 			jen.Id("Server").Op(":").Id("newServer").Call(jen.Id("options")),
 			jen.Id("Validator").Op(":").Id("NewValidation").Call(),

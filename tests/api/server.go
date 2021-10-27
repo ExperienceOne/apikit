@@ -13,6 +13,13 @@ import (
 )
 
 func NewVisAdminServer(options *ServerOpts) *VisAdminServer {
+	if options == nil {
+		options = &ServerOpts{}
+	}
+	if options.Prefix == "" {
+		options.Prefix = ""
+	}
+
 	serverWrapper := &VisAdminServer{Server: newServer(options), Validator: NewValidation()}
 	serverWrapper.Server.SwaggerSpec = swagger
 	serverWrapper.registerValidators()
