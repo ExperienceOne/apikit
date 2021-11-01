@@ -8,6 +8,13 @@ import (
 )
 
 func NewTodoServiceServer(options *ServerOpts) *TodoServiceServer {
+	if options == nil {
+		options = &ServerOpts{}
+	}
+	if options.Prefix == "" {
+		options.Prefix = ""
+	}
+
 	serverWrapper := &TodoServiceServer{Server: newServer(options), Validator: NewValidation()}
 	serverWrapper.Server.SwaggerSpec = swagger
 	serverWrapper.registerValidators()
