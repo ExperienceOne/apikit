@@ -2,10 +2,11 @@ package generator
 
 import (
 	"fmt"
-	"github.com/ExperienceOne/apikit/generator/xhttp"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/ExperienceOne/apikit/generator/xhttp"
 
 	"github.com/ExperienceOne/apikit/generator/file"
 	"github.com/ExperienceOne/apikit/generator/identifier"
@@ -87,7 +88,7 @@ func (gen *goClientGenerator) Generate(path, pckg string, generatePrometheus boo
 	if generateMocks {
 		lastSlash := -1
 		for i := len(path) - 1; i >= 0; i-- {
-			if path[i] == '/' {
+			if path[i] == '/' || path[i] == '\\' {
 				lastSlash = i
 				break
 			}

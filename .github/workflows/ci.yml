@@ -46,5 +46,5 @@ jobs:
         
       - name: Test
         run: |
-          go get -d -t ./...
+          go get ./...
           make test
