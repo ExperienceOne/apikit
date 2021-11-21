@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ExperienceOne/apikit/pkg/requestid"
 	"image"
 	"image/color"
 	"image/png"
@@ -276,6 +277,12 @@ func GetClasses(ctx context.Context, request *GetClassesRequest) GetClassesRespo
 }
 
 func ListElement(ctx context.Context, request *ListElementsRequest) ListElementsResponse {
+
+	requestId := requestid.Get(ctx)
+	if requestId == "" {
+		log.Println("request id is missing")
+		return &ListElements500Response{}
+	}
 
 	if *request.Page != 1 {
 		log.Println("request.Page is bad")

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"encoding/json"
+	"github.com/ExperienceOne/apikit/pkg/requestid"
 	"io/ioutil"
 	"net/http"
 	"reflect"
@@ -53,7 +54,7 @@ func NewMaskingLogger(timeFormat string, fieldsToMask []string, typesToMask []re
 			Endpoint:  r.URL.Path,
 			Method:    r.Method,
 			Params:    r.URL.Query(),
-			RequestID: GetRequestID(r.Context()),
+			RequestID: requestid.Get(r.Context()),
 		}
 
 		if !isIgnoredPath(pathsToIgnore, req.Endpoint) {
