@@ -1,7 +1,14 @@
 run:
-tests: false
+  tests: false
 
 linters:
   disable-all: true
   enable:
     - goerr113
+
+issues:
+  exclude-rules:
+    - path: tests/api/
+      text: "do not define dynamic errors, use wrapped static errors instead"
+      linters:
+        - goerr113
