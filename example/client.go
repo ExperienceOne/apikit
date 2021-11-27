@@ -11,11 +11,29 @@ import (
 )
 
 type TodoServiceClient interface {
+	DeleteTodosMethod
+	ListTodosMethod
+	PostTodoMethod
+	DeleteTodoMethod
+	GetTodoMethod
+	PatchTodoMethod
+}
+type DeleteTodosMethod interface {
 	DeleteTodos(request *DeleteTodosRequest) (DeleteTodosResponse, error)
+}
+type ListTodosMethod interface {
 	ListTodos(request *ListTodosRequest) (ListTodosResponse, error)
+}
+type PostTodoMethod interface {
 	PostTodo(request *PostTodoRequest) (PostTodoResponse, error)
+}
+type DeleteTodoMethod interface {
 	DeleteTodo(request *DeleteTodoRequest) (DeleteTodoResponse, error)
+}
+type GetTodoMethod interface {
 	GetTodo(request *GetTodoRequest) (GetTodoResponse, error)
+}
+type PatchTodoMethod interface {
 	PatchTodo(request *PatchTodoRequest) (PatchTodoResponse, error)
 }
 

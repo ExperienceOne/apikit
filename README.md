@@ -205,7 +205,10 @@ The `client.go` file contains an `interface` defining the programming interface 
 
 ```golang
 type VisAdminClient interface {
-  CreateOrUpdateClient(request *CreateOrUpdateClientRequest) (CreateOrUpdateClientResponse, error)
+    CreateOrUpdateClientMethod
+}
+type CreateOrUpdateClientMethod interface {
+    CreateOrUpdateClient(request *CreateOrUpdateClientRequest) (CreateOrUpdateClientResponse, error)
 }
 ```
 
