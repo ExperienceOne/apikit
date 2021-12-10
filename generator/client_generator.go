@@ -40,18 +40,24 @@ func (gen *goClientGenerator) Generate(path, pckg string, generatePrometheus boo
 
 	file := file.NewFile(pckg)
 
+	var clientInterfaceMethods []jen.Code
 	var clientMethods []jen.Code
 	operations := make([]*Operation, 0)
 	if err := gen.WalkOperations(func(operation *Operation) error {
 		methodDef := jen.Id(strings.Title(operation.ID)).Params(jen.Id("request").Op("*").Id(strings.Title(operation.ID+"Request"))).Params(jen.Id(strings.Title(operation.ID+"Response")), jen.Error())
-		clientMethods = append(clientMethods, methodDef)
+		methodInterfaceIdentifier := strings.Title(strings.Title(operation.ID)+"Method")
+		clientMethods = append(clientMethods,  jen.Id(methodInterfaceIdentifier).Interface(methodDef))
+		clientInterfaceMethods = append(clientInterfaceMethods, jen.Id(methodInterfaceIdentifier))
 		operations = append(operations, operation)
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "error generating operations")
 	}
 
-	file.Type().Id(strings.Title(gen.clientName())).Interface(clientMethods...)
+	file.Type().Id(strings.Title(gen.clientName())).Interface(clientInterfaceMethods...)
+	for _, clientMethod := range clientMethods {
+		file.Type().Add(clientMethod)
+	}
 
 	gen.generateConstructor(gen.clientName(), pckg, operations, generatePrometheus, file)
 

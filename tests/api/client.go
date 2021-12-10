@@ -13,40 +13,145 @@ import (
 )
 
 type VisAdminClient interface {
+	GetClientsMethod
+	DeleteClientMethod
+	GetClientMethod
+	CreateOrUpdateClientMethod
+	GetViewsSetsMethod
+	DeleteViewsSetMethod
+	GetViewsSetMethod
+	ActivateViewsSetMethod
+	CreateOrUpdateViewsSetMethod
+	ShowVehicleInViewMethod
+	GetPermissionsMethod
+	DestroySessionMethod
+	GetUserInfoMethod
+	CreateSessionMethod
+	GetUsersMethod
+	DeleteUserMethod
+	GetUserMethod
+	CreateOrUpdateUserMethod
+	GetBookingMethod
+	GetBookingsMethod
+	ListModelsMethod
+	GetClassesMethod
+	CodeMethod
+	DeleteCustomerSessionMethod
+	CreateCustomerSessionMethod
+	DownloadNestedFileMethod
+	DownloadImageMethod
+	ListElementsMethod
+	FileUploadMethod
+	DownloadFileMethod
+	FindByTagsMethod
+	GenericFileDownloadMethod
+	GetRentalMethod
+	GetShoesMethod
+	PostUploadMethod
+}
+type GetClientsMethod interface {
 	GetClients(request *GetClientsRequest) (GetClientsResponse, error)
+}
+type DeleteClientMethod interface {
 	DeleteClient(request *DeleteClientRequest) (DeleteClientResponse, error)
+}
+type GetClientMethod interface {
 	GetClient(request *GetClientRequest) (GetClientResponse, error)
+}
+type CreateOrUpdateClientMethod interface {
 	CreateOrUpdateClient(request *CreateOrUpdateClientRequest) (CreateOrUpdateClientResponse, error)
+}
+type GetViewsSetsMethod interface {
 	GetViewsSets(request *GetViewsSetsRequest) (GetViewsSetsResponse, error)
+}
+type DeleteViewsSetMethod interface {
 	DeleteViewsSet(request *DeleteViewsSetRequest) (DeleteViewsSetResponse, error)
+}
+type GetViewsSetMethod interface {
 	GetViewsSet(request *GetViewsSetRequest) (GetViewsSetResponse, error)
+}
+type ActivateViewsSetMethod interface {
 	ActivateViewsSet(request *ActivateViewsSetRequest) (ActivateViewsSetResponse, error)
+}
+type CreateOrUpdateViewsSetMethod interface {
 	CreateOrUpdateViewsSet(request *CreateOrUpdateViewsSetRequest) (CreateOrUpdateViewsSetResponse, error)
+}
+type ShowVehicleInViewMethod interface {
 	ShowVehicleInView(request *ShowVehicleInViewRequest) (ShowVehicleInViewResponse, error)
+}
+type GetPermissionsMethod interface {
 	GetPermissions(request *GetPermissionsRequest) (GetPermissionsResponse, error)
+}
+type DestroySessionMethod interface {
 	DestroySession(request *DestroySessionRequest) (DestroySessionResponse, error)
+}
+type GetUserInfoMethod interface {
 	GetUserInfo(request *GetUserInfoRequest) (GetUserInfoResponse, error)
+}
+type CreateSessionMethod interface {
 	CreateSession(request *CreateSessionRequest) (CreateSessionResponse, error)
+}
+type GetUsersMethod interface {
 	GetUsers(request *GetUsersRequest) (GetUsersResponse, error)
+}
+type DeleteUserMethod interface {
 	DeleteUser(request *DeleteUserRequest) (DeleteUserResponse, error)
+}
+type GetUserMethod interface {
 	GetUser(request *GetUserRequest) (GetUserResponse, error)
+}
+type CreateOrUpdateUserMethod interface {
 	CreateOrUpdateUser(request *CreateOrUpdateUserRequest) (CreateOrUpdateUserResponse, error)
+}
+type GetBookingMethod interface {
 	GetBooking(request *GetBookingRequest) (GetBookingResponse, error)
+}
+type GetBookingsMethod interface {
 	GetBookings(request *GetBookingsRequest) (GetBookingsResponse, error)
+}
+type ListModelsMethod interface {
 	ListModels(request *ListModelsRequest) (ListModelsResponse, error)
+}
+type GetClassesMethod interface {
 	GetClasses(request *GetClassesRequest) (GetClassesResponse, error)
+}
+type CodeMethod interface {
 	Code(request *CodeRequest) (CodeResponse, error)
+}
+type DeleteCustomerSessionMethod interface {
 	DeleteCustomerSession(request *DeleteCustomerSessionRequest) (DeleteCustomerSessionResponse, error)
+}
+type CreateCustomerSessionMethod interface {
 	CreateCustomerSession(request *CreateCustomerSessionRequest) (CreateCustomerSessionResponse, error)
+}
+type DownloadNestedFileMethod interface {
 	DownloadNestedFile(request *DownloadNestedFileRequest) (DownloadNestedFileResponse, error)
+}
+type DownloadImageMethod interface {
 	DownloadImage(request *DownloadImageRequest) (DownloadImageResponse, error)
+}
+type ListElementsMethod interface {
 	ListElements(request *ListElementsRequest) (ListElementsResponse, error)
+}
+type FileUploadMethod interface {
 	FileUpload(request *FileUploadRequest) (FileUploadResponse, error)
+}
+type DownloadFileMethod interface {
 	DownloadFile(request *DownloadFileRequest) (DownloadFileResponse, error)
+}
+type FindByTagsMethod interface {
 	FindByTags(request *FindByTagsRequest) (FindByTagsResponse, error)
+}
+type GenericFileDownloadMethod interface {
 	GenericFileDownload(request *GenericFileDownloadRequest) (GenericFileDownloadResponse, error)
+}
+type GetRentalMethod interface {
 	GetRental(request *GetRentalRequest) (GetRentalResponse, error)
+}
+type GetShoesMethod interface {
 	GetShoes(request *GetShoesRequest) (GetShoesResponse, error)
+}
+type PostUploadMethod interface {
 	PostUpload(request *PostUploadRequest) (PostUploadResponse, error)
 }
 
