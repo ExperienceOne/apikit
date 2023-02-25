@@ -32,7 +32,7 @@ require (
 	github.com/vektra/mockery/v2 v2.9.0
 	go.mongodb.org/mongo-driver v1.3.0 // indirect
 	golang.org/x/exp v0.0.0-20200224162631-6cc2880d07d6
-	golang.org/x/sys v0.0.0-20211117180635-dee7805ff2e1 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/tools v0.0.0-20200323144430-8dcfad9e016e
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 )
