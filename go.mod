@@ -27,10 +27,10 @@ require (
 	github.com/prometheus/client_golang v1.11.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.7.0
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.6.1
 	github.com/urfave/cli v1.22.2
 	github.com/vektra/mockery/v2 v2.9.0
-	go.mongodb.org/mongo-driver v1.3.0 // indirect
+	go.mongodb.org/mongo-driver v1.5.1 // indirect
 	golang.org/x/exp v0.0.0-20200224162631-6cc2880d07d6
 	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/tools v0.0.0-20200323144430-8dcfad9e016e
