@@ -112,7 +112,7 @@ func IsContextPopluated(ctx context.Context) error {
 	}
 
 	if value != "dummy" {
-		return fmt.Errorf("error populating context (actual: '%s', expected: '%s')", value, "dummy")
+		return fmt.Errorf("%w (actual: '%s', expected: '%s')", ErrPopulatingContext, value, "dummy")
 	}
 	return nil
 }

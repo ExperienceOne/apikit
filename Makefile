@@ -81,7 +81,7 @@ endif
 
 .PHONY: lint
 lint:
-	docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v1.40.0 golangci-lint run -v --max-issues-per-linter=0 --max-same-issues=0
+	docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v1.62.2 golangci-lint run -v --max-issues-per-linter=0 --max-same-issues=0
 
 .PHONY: install
 install: framework   ## builds and installs the binaries of the APIKit in $GOPATH/bin

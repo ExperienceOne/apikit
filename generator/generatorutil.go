@@ -19,7 +19,7 @@ func getDefinitionName(schema spec.Schema) string {
 	return ""
 }
 
-func walkResponses(operation *Operation, f func(statusCode int, response spec.Response)) {
+func walkResponses(operation *Operation, f func(index int, statusCode int, response spec.Response)) {
 	responses := operation.Responses.StatusCodeResponses
 
 	type Priority struct {
@@ -46,8 +46,8 @@ func walkResponses(operation *Operation, f func(statusCode int, response spec.Re
 		return statusCodesOrder[i].value < statusCodesOrder[j].value
 	})
 
-	for _, v := range statusCodesOrder {
-		f(v.statusCode, responses[v.statusCode])
+	for i, v := range statusCodesOrder {
+		f(i, v.statusCode, responses[v.statusCode])
 	}
 }
 
@@ -56,7 +56,7 @@ func hasFileEndpointValidProduce(operation *Operation) (bool, int) {
 	var match bool
 	var counter int
 
-	walkResponses(operation, func(statusCode int, response spec.Response) {
+	walkResponses(operation, func(_, statusCode int, response spec.Response) {
 		if response.Schema != nil && response.Schema.Type.Contains("file") {
 			match = true
 			if operation.HasProduces(ContentTypesForFiles...) {

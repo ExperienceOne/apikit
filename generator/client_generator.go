@@ -373,9 +373,9 @@ func (gen *goClientGenerator) generateOperation(operation *Operation, nameOfClie
 		)
 
 		lastFileResponseIndex := -1
-		walkResponses(operation, func(statusCode int, response spec.Response) {
+		walkResponses(operation, func(index int, statusCode int, response spec.Response) {
 			if response.Schema != nil && response.Schema.Type.Contains("file") && operation.HasProduces(ContentTypesForFiles...) {
-				lastFileResponseIndex++
+				lastFileResponseIndex = index
 			}
 		})
 
@@ -393,16 +393,12 @@ func (gen *goClientGenerator) generateOperation(operation *Operation, nameOfClie
 			)
 		}
 
-		var currentIndex int
-		var addedDeferStatement bool
-		walkResponses(operation, func(statusCode int, response spec.Response) {
+		walkResponses(operation, func(index int, statusCode int, response spec.Response) {
 			gen.generateResponse(operation, statusCode, response, stmts)
 			// generate defer http.Response.Close statement after last file response handler
-			if lastFileResponseIndex > -1 && currentIndex == lastFileResponseIndex && addedDeferStatement == false {
-				addedDeferStatement = true
+			if index == lastFileResponseIndex {
 				stmts.Defer().Id("httpResponse").Dot("Body").Dot("Close").Call()
 			}
-			currentIndex++
 		})
 
 		stmts.If(jen.Id("client").Dot("hooks").Dot("OnUnknownResponseCode").Op("!=").Nil()).Block(
